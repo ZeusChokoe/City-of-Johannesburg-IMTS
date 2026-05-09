@@ -8,21 +8,21 @@
 
 This project was not delivered by selecting one database engine and applying
 familiar techniques. The problem was examined until the correct tools emerged
-from the requirements — not from habit.
+from the requirements not from habit.
 
 The CoJ's infrastructure is a network of interdependent physical assets.
 That observation led to researching graph theory and Neo4j's property graph
 model, a topic absent from the standard database curriculum. Discovering that
 the openCypher specification had been formalised as ISO/IEC GQL (the first
 international graph query language standard) confirmed that graph databases
-are not a niche technology — they are becoming a SQL-equivalent standard.
+are not a niche technology they are becoming a SQL-equivalent standard.
 That is a finding worth pursuing.
 
 The MongoDB schema validation section demonstrates the same curiosity. The
 $jsonSchema validator mirrors JSON Schema Draft 4, which is also the
 foundation of OpenAPI 3.0 specs and TypeScript type definitions. Recognising
-that the same mental model transfers across tooling boundaries — from MongoDB
-validation to REST API documentation to frontend type safety — is the product
+that the same mental model transfers across tooling boundaries from MongoDB
+validation to REST API documentation to frontend type safety is the product
 of following a thread of interest across domain boundaries, not staying within
 the assigned textbook.
 
@@ -41,7 +41,7 @@ streetlight technician does not?"
 The assignment specified eight tools. This system uses all eight and adds a
 ninth: a production-grade Node.js REST API integration layer that was not
 listed in the tool set but was architecturally necessary. Without it, the
-three databases remain three isolated islands — the polyglot persistence model
+three databases remain three isolated islands the polyglot persistence model
 only works when a coordination layer connects them.
 
 Several additions went beyond the minimum:
@@ -55,19 +55,19 @@ learning about SIEM patterns and South Africa's POPIA compliance requirements
 for audit log retention (7-year TTL index on the audit_events collection).
 
 **phpMyAdmin privilege design at column level (Phase 6):** The analyst role
-was granted SELECT on specific columns of the staff table — not the whole
-table — to exclude email and phone fields. This reflects POPIA's field-level
+was granted SELECT on specific columns of the staff table not the whole
+table to exclude email and phone fields. This reflects POPIA's field-level
 access control requirement, which was researched independently and applied
 to the privilege grant syntax.
 
 **The centrality risk score (Phase 4, Query 4.8):** Computing a simplified
-degree centrality metric for infrastructure assets — weighting downstream
-dependencies more heavily than lateral connections — was not asked for. It
+degree centrality metric for infrastructure assets weighting downstream
+dependencies more heavily than lateral connections was not asked for. It
 was included because the question "which asset is most dangerous to let
 degrade?" has a computable answer in graph theory, and that answer is more
 useful than a subjective condition rating alone. The annotation notes that
 the next learning step is the Neo4j Graph Data Science library's
-betweenness.stream() algorithm — a concrete forward pointer for continued
+betweenness.stream() algorithm a concrete forward pointer for continued
 independent study.
 
 ---
@@ -114,12 +114,12 @@ The following technology choices reflect current (not legacy) practice:
 **MySQL 8.x strict mode and utf8mb4:** The schema is set to STRICT_TRANS_TABLES
 and uses utf8mb4 with unicode_ci collation. This is the MySQL 8.x standard.
 South African municipal systems must store names in Zulu, Sotho, Afrikaans,
-and English — utf8mb4 handles all of them. Systems still running utf8 (the
+and English utf8mb4 handles all of them. Systems still running utf8 (the
 MySQL misnomer for a 3-byte UTF-8 subset) silently corrupt multilingual data.
 
 **MongoDB TTL indexes for data lifecycle:** The 2-year TTL index on
 sensor_readings and the 7-year TTL index on audit_events implement data
-lifecycle management at the database layer. This is the current standard —
+lifecycle management at the database layer. This is the current standard
 not a cron job, not application-level batch deletion. The 7-year audit
 retention aligns with POPIA's record-keeping requirements, which came into
 full effect in 2021.
@@ -133,14 +133,14 @@ version-specific documentation rather than copying outdated tutorials.
 express-rate-limit, CORS configuration with environment-specific origin
 lists, and the graceful SIGTERM shutdown handler all reflect the current
 Node.js production deployment standard. The SIGTERM handler is specifically
-required by Kubernetes pod eviction — a current infrastructure operations
+required by Kubernetes pod eviction a current infrastructure operations
 concern.
 
 **GQL — the emerging graph query standard:** ISO/IEC 39075:2024 (GQL) is
 the first international graph query language standard, ratified in 2024.
 Cypher (Neo4j's query language) was a primary influence on its design.
 Understanding Cypher now means understanding the direction the graph database
-field is standardising toward — equivalent to having learned SQL before
+field is standardising toward equivalent to having learned SQL before
 it became the universal relational standard.
 
 ---
@@ -151,27 +151,27 @@ Learns from successes and mistakes, and recognises limitations.*
 
 **Lesson from the paper system:** The most important architectural decision
 in this entire project was the request_status_history table. It exists because
-the paper system's most catastrophic failure was not losing data — it was
+the paper system's most catastrophic failure was not losing data it was
 having no record of when decisions were made. A burst pipe reported on a
 Monday that was not fixed until Friday had no record of why. Who reviewed it?
 When? Why was it not escalated Tuesday? The immutable audit trail, populated
 exclusively by a trigger (no application code can bypass it), makes every
 delay visible and attributable. This is a structural fix for a systemic
-failure — not a feature, but an architectural response to a lesson.
+failure not a feature, but an architectural response to a lesson.
 
 **Lesson from EAV attempts:** An early design considered a single asset_data
 table with key-value pairs to handle the variable attributes of different
 asset types (a pipe has diameter; a streetlight has wattage). This is the
 Entity-Attribute-Value anti-pattern. EAV tables are nearly impossible to
 query efficiently, cannot be indexed on value, and produce incomprehensible
-SQL. The correct solution — variable schema in MongoDB for unstructured asset
-readings, fixed relational schema in MySQL for structured asset metadata —
+SQL. The correct solution variable schema in MongoDB for unstructured asset
+readings, fixed relational schema in MySQL for structured asset metadata
 emerged from recognising this failure pattern and choosing the right tool
 for the data shape rather than forcing a relational solution.
 
 **Lesson from Neo4j node design:** The initial graph model had AssetType as
 a property on Asset nodes, not a separate node type. This prevented the graph
-query "find all water pipes with condition below 5" from using an index —
+query "find all water pipes with condition below 5" from using an index
 it required a full scan. Separating AssetType into its own node label and
 connecting assets with OF_TYPE relationships made type-filtered traversal
 index-supported. This is a graph-specific lesson: in relational databases,
@@ -184,8 +184,7 @@ update) has no distributed transaction. If the Neo4j write fails after the
 MySQL and MongoDB writes succeed, the system is in a partially inconsistent
 state. The mitigation is a best-effort cleanup (cancel the MySQL record) and
 a comment noting that Neo4j sync can be recovered by a reconciliation job.
-This is an honest recognition of a genuine distributed systems limitation
-— eventual consistency between the three engines is acceptable for this
+This is an honest recognition of a genuine distributed systems limitation eventual consistency between the three engines is acceptable for this
 workload, but the boundary between "eventually consistent" and "permanently
 inconsistent" must be managed explicitly. In a production deployment, a
 message queue (RabbitMQ or Kafka) between the API and the database writes
