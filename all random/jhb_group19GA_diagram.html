@@ -1,0 +1,186 @@
+
+<style>
+#erd { width: 100%; overflow-x: auto; }
+#erd svg { max-width: 100%; }
+</style>
+<div id="erd"></div>
+<script type="module">
+import mermaid from 'https://esm.sh/mermaid@11/dist/mermaid.esm.min.mjs';
+const dark = matchMedia('(prefers-color-scheme: dark)').matches;
+await document.fonts.ready;
+mermaid.initialize({
+  startOnLoad: false,
+  theme: 'base',
+  fontFamily: '"Anthropic Sans", sans-serif',
+  themeVariables: {
+    darkMode: dark,
+    fontSize: '12px',
+    fontFamily: '"Anthropic Sans", sans-serif',
+    primaryColor: dark ? '#2a2860' : '#EEEDFE',
+    primaryBorderColor: dark ? '#7F77DD' : '#534AB7',
+    primaryTextColor: dark ? '#CECBF6' : '#26215C',
+    lineColor: dark ? '#7F77DD' : '#534AB7',
+    secondaryColor: dark ? '#083828' : '#E1F5EE',
+    tertiaryColor: dark ? '#1a1208' : '#FAEEDA',
+    textColor: dark ? '#c2c0b6' : '#3d3d3a',
+  },
+  er: { diagramPadding: 20, layoutDirection: 'TB', minEntityWidth: 100, minEntityHeight: 75, entityPadding: 15, useMaxWidth: true }
+});
+
+const diagram = `erDiagram
+  districts {
+    tinyint district_id PK
+    varchar district_name
+    varchar region_code
+    varchar sub_district
+    int population
+  }
+  asset_types {
+    smallint asset_type_id PK
+    varchar type_name
+    enum criticality_level
+    smallint sla_hours
+    smallint maintenance_interval_days
+  }
+  parts_inventory {
+    int part_id PK
+    varchar part_code
+    varchar part_name
+    int quantity_on_hand
+    int reorder_level
+    smallint asset_type_id FK
+  }
+  assets {
+    int asset_id PK
+    smallint asset_type_id FK
+    tinyint district_id FK
+    varchar asset_code
+    enum status
+    tinyint condition_rating
+    decimal latitude
+    decimal longitude
+    varchar mongo_sensor_device_id
+    varchar neo4j_node_id
+  }
+  staff {
+    int staff_id PK
+    varchar employee_number
+    varchar first_name
+    varchar last_name
+    enum role
+    enum specialization
+    tinyint district_id FK
+  }
+  maintenance_requests {
+    int request_id PK
+    varchar request_reference
+    int asset_id FK
+    tinyint district_id FK
+    int reported_by_staff_id FK
+    enum category
+    enum priority
+    enum status
+    datetime reported_at
+    varchar mongo_log_id
+  }
+  work_orders {
+    int work_order_id PK
+    varchar work_order_ref
+    int request_id FK
+    int asset_id FK
+    tinyint district_id FK
+    int supervisor_id FK
+    enum priority
+    enum status
+    datetime sla_deadline
+    tinyint sla_breached
+  }
+  work_order_assignments {
+    int assignment_id PK
+    int work_order_id FK
+    int staff_id FK
+    enum role_on_order
+    int assigned_by_id FK
+  }
+  parts_usage {
+    int usage_id PK
+    int work_order_id FK
+    int part_id FK
+    int quantity_used
+    decimal unit_cost_at_time_zar
+    int recorded_by_id FK
+  }
+  inspections {
+    int inspection_id PK
+    varchar inspection_ref
+    int asset_id FK
+    tinyint district_id FK
+    int inspector_id FK
+    enum inspection_type
+    date scheduled_date
+    tinyint condition_before
+    tinyint condition_after
+    enum recommendation
+    int work_order_id FK
+    varchar mongo_report_id
+  }
+  request_status_history {
+    bigint history_id PK
+    int request_id FK
+    enum previous_status
+    enum new_status
+    int changed_by_id FK
+    varchar change_reason
+    datetime changed_at
+  }
+
+  districts ||--o{ assets : "contains"
+  districts ||--o{ staff : "employs"
+  districts ||--o{ maintenance_requests : "receives"
+  districts ||--o{ work_orders : "manages"
+  districts ||--o{ inspections : "schedules"
+  asset_types ||--o{ assets : "classifies"
+  asset_types ||--o{ parts_inventory : "consumes"
+  assets ||--o{ maintenance_requests : "reported on"
+  assets ||--o{ work_orders : "addressed by"
+  assets ||--o{ inspections : "inspected via"
+  staff ||--o{ maintenance_requests : "reports"
+  staff ||--o{ work_orders : "supervises"
+  staff ||--o{ work_order_assignments : "assigned in"
+  staff ||--o{ inspections : "conducts"
+  staff ||--o{ request_status_history : "changes"
+  maintenance_requests ||--o{ work_orders : "spawns"
+  maintenance_requests ||--o{ request_status_history : "audited by"
+  work_orders ||--o{ work_order_assignments : "staffed by"
+  work_orders ||--o{ parts_usage : "consumes"
+  work_orders ||--o{ inspections : "triggers"
+  parts_inventory ||--o{ parts_usage : "used in"
+`;
+
+const { svg } = await mermaid.render('erd-svg', diagram);
+document.getElementById('erd').innerHTML = svg;
+
+document.querySelectorAll('#erd svg .node').forEach(node => {
+  const firstPath = node.querySelector('path[d]');
+  if (!firstPath) return;
+  const d = firstPath.getAttribute('d');
+  const nums = d.match(/-?[\d.]+/g)?.map(Number);
+  if (!nums || nums.length < 8) return;
+  const xs = [nums[0], nums[2], nums[4], nums[6]];
+  const ys = [nums[1], nums[3], nums[5], nums[7]];
+  const x = Math.min(...xs), y = Math.min(...ys);
+  const w = Math.max(...xs) - x, h = Math.max(...ys) - y;
+  const rect = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+  rect.setAttribute('x', x); rect.setAttribute('y', y);
+  rect.setAttribute('width', w); rect.setAttribute('height', h);
+  rect.setAttribute('rx', '8');
+  for (const a of ['fill','stroke','stroke-width','class','style']) {
+    if (firstPath.hasAttribute(a)) rect.setAttribute(a, firstPath.getAttribute(a));
+  }
+  firstPath.replaceWith(rect);
+});
+
+document.querySelectorAll('#erd svg .row-rect-odd path, #erd svg .row-rect-even path').forEach(p => {
+  p.setAttribute('stroke', 'none');
+});
+</script>

@@ -1,0 +1,356 @@
+================================================================================
+  CITY OF JOHANNESBURG — IMTS
+  COMPLETE SETUP AND CONNECTION GUIDE
+  Read this file first before running anything.
+================================================================================
+
+This guide connects your installed XAMPP (MySQL), MongoDB, and Neo4j to the
+JHB Infrastructure Maintenance Tracking System. Follow every step in order.
+Do not skip sections.
+
+================================================================================
+FOLDER STRUCTURE (what you have)
+================================================================================
+
+group19GA_complete/
+├── phase1_mysql/
+│     └── jhb_phase1_schema.sql       ← Run FIRST in MySQL/phpMyAdmin
+├── phase2_mysql_logic/
+│     └── jhb_phase2_logic.sql        ← Run SECOND in MySQL/phpMyAdmin
+├── phase3_mongodb/
+│     └── jhb_phase3_mongodb.js       ← Run in mongosh
+├── phase4_neo4j/
+│     └── jhb_phase4_neo4j.cypher     ← Paste sections into Neo4j Browser
+├── phase5_api/
+│     ├── server.js                   ← Main API entry point
+│     ├── package.json
+│     ├── .env.example                ← Copy to .env and fill passwords
+│     ├── config/db.js
+│     ├── middleware/index.js
+│     ├── routes/index.js
+│     └── controllers/
+│           ├── requestController.js
+│           └── controllers.js
+├── phase6_access_diagrams/
+│     ├── jhb_phase6_phpmyadmin_access.sql   ← MySQL user privilege setup
+│     └── group19GA_GA9_Reflection.md
+├── phase7_diagrams/
+│     ├── jhb_phase7_dataflow.drawio          ← Open in diagrams.net
+│     └── jhb_phase7_er_diagram.drawio        ← Open in diagrams.net
+└── connection_test/
+      ├── package.json
+      ├── .env                                ← Edit Neo4j password here
+      └── test_connections.js                 ← Run to test everything
+
+================================================================================
+PART 1: XAMPP — MySQL Setup
+================================================================================
+
+WHAT IT IS: XAMPP runs Apache and MySQL on your machine. MySQL listens on
+port 3306. phpMyAdmin is the web interface at http://localhost/phpmyadmin
+
+STEP 1.1 — Start XAMPP Services
+  1. Open XAMPP Control Panel
+  2. Click START next to "Apache"
+  3. Click START next to "MySQL"
+  4. Both should show green "Running" status
+  5. Confirm MySQL is running: open http://localhost/phpmyadmin in your browser
+     You should see the phpMyAdmin dashboard
+
+STEP 1.2 — Run Phase 1 (Schema)
+  Option A — phpMyAdmin (easiest):
+    1. Go to http://localhost/phpmyadmin
+    2. Click the "SQL" tab at the top
+    3. Click "Choose File" or paste the contents of:
+         phase1_mysql/jhb_phase1_schema.sql
+    4. Click "Go"
+    5. You should see "group19GA" appear in the left sidebar with 11 tables
+
+  Option B — Command Line (if MySQL is in your PATH):
+    mysql -u root -p < phase1_mysql/jhb_phase1_schema.sql
+    (press Enter when prompted for password — XAMPP root has no password by default)
+
+  Option C — MySQL Workbench:
+    1. Open MySQL Workbench
+    2. Connect to 127.0.0.1:3306 as root
+    3. File > Open SQL Script > select jhb_phase1_schema.sql
+    4. Click the lightning bolt (Execute All)
+
+STEP 1.3 — Run Phase 2 (Business Logic)
+  Same method as Step 1.2, but with:
+    phase2_mysql_logic/jhb_phase2_logic.sql
+
+  IMPORTANT: This file uses DELIMITER $$ — MySQL Workbench handles this
+  correctly. In phpMyAdmin, ensure "Delimiter" at the bottom is set to $$
+  before running, or use the "Import" tab (File > Import) instead of SQL tab.
+
+  After running, verify in phpMyAdmin:
+    group19GA > Routines tab → should show 5 functions + 6 procedures
+    group19GA > Events tab   → should show 4 events
+    group19GA > Triggers are visible under each table
+
+STEP 1.4 — Set Up phpMyAdmin Users (optional but recommended)
+  Run phase6_access_diagrams/jhb_phase6_phpmyadmin_access.sql as root.
+  This creates the 4 role-based users: jhb_api_user, jhb_dba, jhb_analyst,
+  jhb_supervisor. Edit the passwords inside the file before running.
+
+XAMPP phpMyAdmin URL: http://localhost/phpmyadmin
+XAMPP MySQL port:     3306
+Default user:         root
+Default password:     (blank — no password in fresh XAMPP install)
+
+================================================================================
+PART 2: MongoDB Setup
+================================================================================
+
+WHAT IT IS: MongoDB Community Edition runs as a Windows service or macOS/Linux
+daemon. The shell (mongosh) is the command-line interface.
+
+STEP 2.1 — Confirm MongoDB is running
+  Windows:
+    Open Services (Win+R > services.msc) > look for "MongoDB" > should be Running
+    OR in Command Prompt: net start MongoDB
+    OR if installed as application: mongod --dbpath "C:\data\db"
+
+  macOS:
+    brew services start mongodb-community
+    OR: mongod --config /usr/local/etc/mongod.conf
+
+  Linux:
+    sudo systemctl start mongod
+    sudo systemctl enable mongod   (auto-start on boot)
+
+  Verify: open a terminal and type:
+    mongosh
+    You should get the mongosh prompt. Type "exit" to leave.
+
+STEP 2.2 — Run Phase 3 (Collections, Indexes, Seed Data)
+  In your terminal:
+    mongosh --file phase3_mongodb/jhb_phase3_mongodb.js
+
+  This will:
+    - Create the group19GA_mongo database
+    - Create 5 collections with JSON Schema validation
+    - Create all indexes (including TTL and geospatial)
+    - Insert realistic seed documents
+
+  Verify in mongosh:
+    mongosh
+    use group19GA_mongo
+    show collections
+    db.maintenance_logs.countDocuments()    // should return 6
+    db.sensor_readings.countDocuments()     // should return 30
+
+  Verify with MongoDB Compass (GUI):
+    Open MongoDB Compass > Connect to mongodb://localhost:27017
+    Select group19GA_mongo database
+    Browse collections and documents
+
+MongoDB port:         27017
+Connection string:    mongodb://localhost:27017
+No username/password required for local Community Edition by default.
+
+================================================================================
+PART 3: Neo4j Setup
+================================================================================
+
+WHAT IT IS: Neo4j Desktop is the GUI application. It manages local Neo4j
+database instances. Neo4j Browser is the web interface for running Cypher.
+
+STEP 3.1 — Create and Start a Neo4j Database
+  1. Open Neo4j Desktop
+  2. Click "New" > "Create project" (name it "JHB IMTS")
+  3. Inside the project, click "Add" > "Local DBMS"
+  4. Set name: group19GA_db
+  5. Set a password (write it down — you need it for .env files)
+  6. Click "Create"
+  7. Click "Start" on the new database
+  8. Click "Open" > "Neo4j Browser" — a browser window opens at
+     http://localhost:7474
+
+STEP 3.2 — Run Phase 4 (Nodes, Relationships, Cypher Queries)
+  The Phase 4 file is divided into 5 sections. Paste one section at a time
+  into Neo4j Browser and press Ctrl+Enter (or the play button) to run.
+
+  SECTION ORDER (do not skip):
+    Section 1: Constraints and Indexes
+               Paste all CREATE CONSTRAINT and CREATE INDEX statements
+               Run them first — nodes created without constraints may duplicate
+
+    Section 2: Node Creation
+               Paste and run all MERGE (d1:District...) etc. blocks
+               Creates 7 districts, 10 asset types, 18 assets, requests,
+               work orders, technicians, failure events
+
+    Section 3: Relationship Creation
+               Paste and run all MATCH...MERGE relationship blocks
+               Creates LOCATED_IN, CONNECTS_TO, FEEDS_INTO, DEPENDS_ON etc.
+
+    Section 4: Cypher Query Library (for testing)
+               Run queries 4.1 through 4.8 individually to verify data
+
+    Section 5: Verification
+               Run the MATCH (n) RETURN labels(n) query to confirm node counts
+
+  Verify:
+    MATCH (n) RETURN labels(n)[0] AS label, count(n) AS count ORDER BY count DESC
+    Should show: Asset(18), Technician(7), District(7), AssetType(10) etc.
+
+  TIP: In Neo4j Browser, use the ":style" command to change visual themes.
+       The graph visualisation is at the bottom of any RETURN n, r, m query.
+
+Neo4j Browser:        http://localhost:7474
+Bolt port:            7687
+Default user:         neo4j
+Default password:     (the one you set in Neo4j Desktop — NOT "neo4j" after first login)
+
+================================================================================
+PART 4: Run the Connection Test
+================================================================================
+
+Once all three databases are running and loaded, test everything:
+
+STEP 4.1 — Edit the test .env file
+  Open connection_test/.env
+  Set NEO4J_PASSWORD to your Neo4j database password
+  MySQL and MongoDB use no password by default (leave blank)
+
+STEP 4.2 — Install test dependencies
+  Open terminal in connection_test/ folder:
+    npm install
+
+STEP 4.3 — Run the test
+    node test_connections.js
+
+  Expected output — all green ticks:
+    ✓ MySQL server reachable — ping OK
+    ✓ MySQL version: 8.x.x
+    ✓ Database 'group19GA' EXISTS
+    ✓ All 11 tables present
+    ✓ Functions: 5, Procedures: 6, Triggers: 8, Events: 4
+    ✓ MongoDB server reachable
+    ✓ All 5 collections found
+    ✓ Neo4j server reachable
+    ✓ Graph populated — 6 node label(s) found
+
+================================================================================
+PART 5: Start the REST API (Phase 5)
+================================================================================
+
+STEP 5.1 — Install API dependencies
+  Open terminal in phase5_api/ folder:
+    npm install
+
+STEP 5.2 — Configure API environment
+  Copy .env.example to .env:
+    Windows: copy .env.example .env
+    macOS/Linux: cp .env.example .env
+
+  Open .env and set:
+    MYSQL_PASSWORD=          (blank for XAMPP default)
+    NEO4J_PASSWORD=          (your Neo4j password)
+    MONGO_URI=mongodb://127.0.0.1:27017
+
+STEP 5.3 — Start the API
+    node server.js
+
+  Expected output:
+    [MySQL]   Connected — pool size: 10
+    [MongoDB] Connected — database: group19GA_mongo
+    [Neo4j]   Connected — URI: bolt://localhost:7687
+    API listening on http://localhost:3000/api/v1
+
+STEP 5.4 — Test the API endpoints
+  Open your browser or use curl / Postman:
+
+  Health check (all DBs):
+    http://localhost:3000/api/v1/health/deep
+
+  List open maintenance requests:
+    http://localhost:3000/api/v1/requests
+
+  Get request #1 (merged from all 3 DBs):
+    http://localhost:3000/api/v1/requests/1
+
+  Get impact analysis for request #1 (Neo4j cascade):
+    http://localhost:3000/api/v1/requests/1/impact
+
+  Get asset #1 detail (all 3 DBs merged):
+    http://localhost:3000/api/v1/assets/1
+
+  Get asset #1 risk score (Neo4j centrality):
+    http://localhost:3000/api/v1/assets/1/risk
+
+  District 1 report (cursor-based procedure):
+    http://localhost:3000/api/v1/reports/district/1
+
+  SLA-breached work orders:
+    http://localhost:3000/api/v1/work-orders/sla-breaches
+
+  Asset condition summary:
+    http://localhost:3000/api/v1/reports/asset-conditions
+
+================================================================================
+PART 6: Open the Diagrams
+================================================================================
+
+ER Diagram (Draw.io / Lucidchart):
+  File: phase7_diagrams/jhb_phase7_er_diagram.drawio
+  Open at: https://app.diagrams.net → File > Open → select the file
+  OR: Open Draw.io desktop app > File > Open
+
+Data Flow Diagram:
+  File: phase7_diagrams/jhb_phase7_dataflow.drawio
+  Same method as above
+
+Both files are valid diagrams.net XML — they import without modification.
+
+================================================================================
+QUICK REFERENCE — PORTS AND URLS
+================================================================================
+
+Service             Port    URL / Connection String
+─────────────────── ─────── ────────────────────────────────────────────────
+XAMPP Apache        80      http://localhost
+XAMPP phpMyAdmin    80      http://localhost/phpmyadmin
+XAMPP MySQL         3306    mysql://root:@localhost:3306/group19GA
+MongoDB             27017   mongodb://localhost:27017/group19GA_mongo
+Neo4j Browser       7474    http://localhost:7474
+Neo4j Bolt          7687    bolt://localhost:7687
+JHB IMTS API        3000    http://localhost:3000/api/v1
+
+================================================================================
+TROUBLESHOOTING
+================================================================================
+
+Problem: phpMyAdmin shows error 1064 when running Phase 2 SQL
+Fix: Use File > Import tab in phpMyAdmin, not the SQL query tab.
+     The DELIMITER $$ syntax requires the Import method.
+     OR use MySQL Workbench which handles DELIMITER natively.
+
+Problem: MongoDB shows "MongoServerError: Document failed validation"
+Fix: The Phase 3 script drops and recreates collections. If you have old
+     documents from a partial run, drop the database first:
+     mongosh → use group19GA_mongo → db.dropDatabase() → re-run the script.
+
+Problem: Neo4j shows "already exists" errors for constraints
+Fix: This is safe — the IF NOT EXISTS clause prevents duplicates.
+     Continue to the next section.
+
+Problem: API shows "MySQL pool not initialised" error
+Fix: Check that MySQL is running (XAMPP green status) and that MYSQL_PASSWORD
+     in phase5_api/.env is correct (blank for default XAMPP).
+
+Problem: Neo4j connection refused
+Fix: Open Neo4j Desktop → click START on your database.
+     The database does not auto-start — you must start it manually each time
+     unless you configure it as a system service.
+
+Problem: API starts but /health/deep shows Neo4j UNREACHABLE
+Fix: Ensure NEO4J_PASSWORD in phase5_api/.env matches the password you set
+     in Neo4j Desktop when creating the database.
+
+================================================================================
+END OF SETUP GUIDE
+City of Johannesburg — IMTS
+================================================================================

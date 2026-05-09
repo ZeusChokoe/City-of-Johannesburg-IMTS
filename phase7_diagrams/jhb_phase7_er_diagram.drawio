@@ -1,0 +1,244 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  =============================================================================
+  CITY OF JOHANNESBURG — IMTS
+  Entity-Relationship Diagram (Draw.io / Lucidchart format)
+  =============================================================================
+  HOW TO OPEN:
+    Draw.io (diagrams.net): File > Open > select this file
+    Lucidchart: File > Import > Diagrams.net / Draw.io
+  =============================================================================
+  NOTATION: Crow's foot notation
+    |o  = zero or one
+    ||  = exactly one
+    o{  = zero or many
+    |{  = one or many
+  =============================================================================
+-->
+<mxGraphModel dx="1422" dy="762" grid="1" gridSize="10" guides="1"
+              tooltips="1" connect="1" arrows="1" fold="1" page="1"
+              pageScale="1" pageWidth="1654" pageHeight="1169"
+              math="0" shadow="0">
+  <root>
+    <mxCell id="0" />
+    <mxCell id="1" parent="0" />
+
+    <!-- Title -->
+    <mxCell id="title" value="City of Johannesburg IMTS — Entity-Relationship Diagram (3NF)"
+            style="text;html=1;strokeColor=none;fillColor=none;align=center;
+                   verticalAlign=middle;whiteSpace=wrap;rounded=0;
+                   fontSize=16;fontStyle=1;"
+            vertex="1" parent="1">
+      <mxGeometry x="300" y="20" width="1050" height="30" as="geometry" />
+    </mxCell>
+
+    <!-- =====================================================================
+         ENTITY STYLE DEFINITIONS (applied inline)
+         Header: fillColor=#1a1a4e;fontColor=#ffffff — dark navy
+         Row:    fillColor=#f0f4ff;strokeColor=#6c8ebf
+    ===================================================================== -->
+
+    <!-- DISTRICTS -->
+    <mxCell id="t_districts"
+            value="&lt;table style='width:100%;border-collapse:collapse;font-size:11px;'&gt;&lt;tr style='background:#1a4e8a;color:#fff;'&gt;&lt;td colspan='3' style='padding:4px 8px;font-weight:bold;font-size:12px;'&gt;districts&lt;/td&gt;&lt;/tr&gt;&lt;tr style='background:#e8f0fe;'&gt;&lt;td style='padding:2px 8px;'&gt;🔑&lt;/td&gt;&lt;td style='padding:2px 8px;font-weight:bold;'&gt;district_id&lt;/td&gt;&lt;td style='padding:2px 8px;color:#555;'&gt;TINYINT UNSIGNED PK&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td style='padding:2px 8px;'&gt;&lt;/td&gt;&lt;td style='padding:2px 8px;'&gt;district_name&lt;/td&gt;&lt;td style='padding:2px 8px;color:#555;'&gt;VARCHAR(100)&lt;/td&gt;&lt;/tr&gt;&lt;tr style='background:#f5f8ff;'&gt;&lt;td&gt;&lt;/td&gt;&lt;td style='padding:2px 8px;'&gt;region_code&lt;/td&gt;&lt;td style='padding:2px 8px;color:#555;'&gt;VARCHAR(10) UQ&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;&lt;/td&gt;&lt;td style='padding:2px 8px;'&gt;sub_district&lt;/td&gt;&lt;td style='padding:2px 8px;color:#555;'&gt;VARCHAR(100)&lt;/td&gt;&lt;/tr&gt;&lt;tr style='background:#f5f8ff;'&gt;&lt;td&gt;&lt;/td&gt;&lt;td style='padding:2px 8px;'&gt;population&lt;/td&gt;&lt;td style='padding:2px 8px;color:#555;'&gt;INT UNSIGNED&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;&lt;/td&gt;&lt;td style='padding:2px 8px;'&gt;is_active&lt;/td&gt;&lt;td style='padding:2px 8px;color:#555;'&gt;TINYINT(1)&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;"
+            style="text;html=1;strokeColor=#1a4e8a;fillColor=#ffffff;
+                   align=left;verticalAlign=top;spacingLeft=0;spacingRight=0;
+                   overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];
+                   portConstraint=eastwest;fontSize=11;"
+            vertex="1" parent="1">
+      <mxGeometry x="60" y="100" width="280" height="160" as="geometry" />
+    </mxCell>
+
+    <!-- ASSET_TYPES -->
+    <mxCell id="t_asset_types"
+            value="&lt;table style='width:100%;border-collapse:collapse;font-size:11px;'&gt;&lt;tr style='background:#1a4e8a;color:#fff;'&gt;&lt;td colspan='3' style='padding:4px 8px;font-weight:bold;font-size:12px;'&gt;asset_types&lt;/td&gt;&lt;/tr&gt;&lt;tr style='background:#e8f0fe;'&gt;&lt;td style='padding:2px 8px;'&gt;🔑&lt;/td&gt;&lt;td style='padding:2px 8px;font-weight:bold;'&gt;asset_type_id&lt;/td&gt;&lt;td style='padding:2px 8px;color:#555;'&gt;SMALLINT PK&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;&lt;/td&gt;&lt;td style='padding:2px 8px;'&gt;type_name&lt;/td&gt;&lt;td style='padding:2px 8px;color:#555;'&gt;VARCHAR(100) UQ&lt;/td&gt;&lt;/tr&gt;&lt;tr style='background:#f5f8ff;'&gt;&lt;td&gt;&lt;/td&gt;&lt;td style='padding:2px 8px;'&gt;criticality_level&lt;/td&gt;&lt;td style='padding:2px 8px;color:#555;'&gt;ENUM&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;&lt;/td&gt;&lt;td style='padding:2px 8px;'&gt;sla_hours&lt;/td&gt;&lt;td style='padding:2px 8px;color:#555;'&gt;SMALLINT&lt;/td&gt;&lt;/tr&gt;&lt;tr style='background:#f5f8ff;'&gt;&lt;td&gt;&lt;/td&gt;&lt;td style='padding:2px 8px;'&gt;maintenance_interval_days&lt;/td&gt;&lt;td style='padding:2px 8px;color:#555;'&gt;SMALLINT&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;"
+            style="text;html=1;strokeColor=#1a4e8a;fillColor=#ffffff;
+                   align=left;verticalAlign=top;overflow=hidden;rotatable=0;fontSize=11;"
+            vertex="1" parent="1">
+      <mxGeometry x="60" y="340" width="280" height="140" as="geometry" />
+    </mxCell>
+
+    <!-- PARTS_INVENTORY -->
+    <mxCell id="t_parts"
+            value="&lt;table style='width:100%;border-collapse:collapse;font-size:11px;'&gt;&lt;tr style='background:#1a4e8a;color:#fff;'&gt;&lt;td colspan='3' style='padding:4px 8px;font-weight:bold;font-size:12px;'&gt;parts_inventory&lt;/td&gt;&lt;/tr&gt;&lt;tr style='background:#e8f0fe;'&gt;&lt;td style='padding:2px 8px;'&gt;🔑&lt;/td&gt;&lt;td style='padding:2px 8px;font-weight:bold;'&gt;part_id&lt;/td&gt;&lt;td style='padding:2px 8px;color:#555;'&gt;INT PK&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;&lt;/td&gt;&lt;td style='padding:2px 8px;'&gt;part_code&lt;/td&gt;&lt;td style='padding:2px 8px;color:#555;'&gt;VARCHAR(30) UQ&lt;/td&gt;&lt;/tr&gt;&lt;tr style='background:#f5f8ff;'&gt;&lt;td&gt;&lt;/td&gt;&lt;td style='padding:2px 8px;'&gt;quantity_on_hand&lt;/td&gt;&lt;td style='padding:2px 8px;color:#555;'&gt;INT UNSIGNED&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;&lt;/td&gt;&lt;td style='padding:2px 8px;'&gt;reorder_level&lt;/td&gt;&lt;td style='padding:2px 8px;color:#555;'&gt;INT UNSIGNED&lt;/td&gt;&lt;/tr&gt;&lt;tr style='background:#f5f8ff;'&gt;&lt;td style='padding:2px 8px;'&gt;🔗&lt;/td&gt;&lt;td style='padding:2px 8px;'&gt;asset_type_id&lt;/td&gt;&lt;td style='padding:2px 8px;color:#555;'&gt;SMALLINT FK&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;&lt;/td&gt;&lt;td style='padding:2px 8px;'&gt;unit_cost_zar&lt;/td&gt;&lt;td style='padding:2px 8px;color:#555;'&gt;DECIMAL(10,2)&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;"
+            style="text;html=1;strokeColor=#1a4e8a;fillColor=#ffffff;
+                   align=left;verticalAlign=top;overflow=hidden;rotatable=0;fontSize=11;"
+            vertex="1" parent="1">
+      <mxGeometry x="60" y="560" width="280" height="170" as="geometry" />
+    </mxCell>
+
+    <!-- ASSETS -->
+    <mxCell id="t_assets"
+            value="&lt;table style='width:100%;border-collapse:collapse;font-size:11px;'&gt;&lt;tr style='background:#0d6e4e;color:#fff;'&gt;&lt;td colspan='3' style='padding:4px 8px;font-weight:bold;font-size:12px;'&gt;assets&lt;/td&gt;&lt;/tr&gt;&lt;tr style='background:#e8f5f1;'&gt;&lt;td style='padding:2px 8px;'&gt;🔑&lt;/td&gt;&lt;td style='padding:2px 8px;font-weight:bold;'&gt;asset_id&lt;/td&gt;&lt;td style='padding:2px 8px;color:#555;'&gt;INT PK&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td style='padding:2px 8px;'&gt;🔗&lt;/td&gt;&lt;td style='padding:2px 8px;'&gt;asset_type_id&lt;/td&gt;&lt;td style='padding:2px 8px;color:#555;'&gt;SMALLINT FK&lt;/td&gt;&lt;/tr&gt;&lt;tr style='background:#f0faf5;'&gt;&lt;td style='padding:2px 8px;'&gt;🔗&lt;/td&gt;&lt;td style='padding:2px 8px;'&gt;district_id&lt;/td&gt;&lt;td style='padding:2px 8px;color:#555;'&gt;TINYINT FK&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;&lt;/td&gt;&lt;td style='padding:2px 8px;'&gt;asset_code&lt;/td&gt;&lt;td style='padding:2px 8px;color:#555;'&gt;VARCHAR(30) UQ&lt;/td&gt;&lt;/tr&gt;&lt;tr style='background:#f0faf5;'&gt;&lt;td&gt;&lt;/td&gt;&lt;td style='padding:2px 8px;'&gt;status&lt;/td&gt;&lt;td style='padding:2px 8px;color:#555;'&gt;ENUM&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;&lt;/td&gt;&lt;td style='padding:2px 8px;'&gt;condition_rating&lt;/td&gt;&lt;td style='padding:2px 8px;color:#555;'&gt;TINYINT (1-10)&lt;/td&gt;&lt;/tr&gt;&lt;tr style='background:#f0faf5;'&gt;&lt;td&gt;&lt;/td&gt;&lt;td style='padding:2px 8px;'&gt;latitude / longitude&lt;/td&gt;&lt;td style='padding:2px 8px;color:#555;'&gt;DECIMAL(10,7)&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;&lt;/td&gt;&lt;td style='padding:2px 8px;'&gt;mongo_sensor_device_id&lt;/td&gt;&lt;td style='padding:2px 8px;color:#a00;'&gt;VARCHAR — bridge key&lt;/td&gt;&lt;/tr&gt;&lt;tr style='background:#f0faf5;'&gt;&lt;td&gt;&lt;/td&gt;&lt;td style='padding:2px 8px;'&gt;neo4j_node_id&lt;/td&gt;&lt;td style='padding:2px 8px;color:#a00;'&gt;VARCHAR — bridge key&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;"
+            style="text;html=1;strokeColor=#0d6e4e;fillColor=#ffffff;
+                   align=left;verticalAlign=top;overflow=hidden;rotatable=0;fontSize=11;"
+            vertex="1" parent="1">
+      <mxGeometry x="500" y="200" width="300" height="240" as="geometry" />
+    </mxCell>
+
+    <!-- STAFF -->
+    <mxCell id="t_staff"
+            value="&lt;table style='width:100%;border-collapse:collapse;font-size:11px;'&gt;&lt;tr style='background:#0d6e4e;color:#fff;'&gt;&lt;td colspan='3' style='padding:4px 8px;font-weight:bold;font-size:12px;'&gt;staff&lt;/td&gt;&lt;/tr&gt;&lt;tr style='background:#e8f5f1;'&gt;&lt;td style='padding:2px 8px;'&gt;🔑&lt;/td&gt;&lt;td style='padding:2px 8px;font-weight:bold;'&gt;staff_id&lt;/td&gt;&lt;td style='padding:2px 8px;color:#555;'&gt;INT PK&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;&lt;/td&gt;&lt;td style='padding:2px 8px;'&gt;employee_number&lt;/td&gt;&lt;td style='padding:2px 8px;color:#555;'&gt;VARCHAR(20) UQ&lt;/td&gt;&lt;/tr&gt;&lt;tr style='background:#f0faf5;'&gt;&lt;td&gt;&lt;/td&gt;&lt;td style='padding:2px 8px;'&gt;role&lt;/td&gt;&lt;td style='padding:2px 8px;color:#555;'&gt;ENUM&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;&lt;/td&gt;&lt;td style='padding:2px 8px;'&gt;specialization&lt;/td&gt;&lt;td style='padding:2px 8px;color:#555;'&gt;ENUM&lt;/td&gt;&lt;/tr&gt;&lt;tr style='background:#f0faf5;'&gt;&lt;td style='padding:2px 8px;'&gt;🔗&lt;/td&gt;&lt;td style='padding:2px 8px;'&gt;district_id&lt;/td&gt;&lt;td style='padding:2px 8px;color:#555;'&gt;TINYINT FK&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;"
+            style="text;html=1;strokeColor=#0d6e4e;fillColor=#ffffff;
+                   align=left;verticalAlign=top;overflow=hidden;rotatable=0;fontSize=11;"
+            vertex="1" parent="1">
+      <mxGeometry x="900" y="100" width="280" height="150" as="geometry" />
+    </mxCell>
+
+    <!-- MAINTENANCE_REQUESTS -->
+    <mxCell id="t_mreq"
+            value="&lt;table style='width:100%;border-collapse:collapse;font-size:11px;'&gt;&lt;tr style='background:#7b2d8b;color:#fff;'&gt;&lt;td colspan='3' style='padding:4px 8px;font-weight:bold;font-size:12px;'&gt;maintenance_requests&lt;/td&gt;&lt;/tr&gt;&lt;tr style='background:#f5e8fa;'&gt;&lt;td style='padding:2px 8px;'&gt;🔑&lt;/td&gt;&lt;td style='padding:2px 8px;font-weight:bold;'&gt;request_id&lt;/td&gt;&lt;td style='padding:2px 8px;color:#555;'&gt;INT PK&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;&lt;/td&gt;&lt;td style='padding:2px 8px;'&gt;request_reference&lt;/td&gt;&lt;td style='padding:2px 8px;color:#555;'&gt;VARCHAR(20) UQ&lt;/td&gt;&lt;/tr&gt;&lt;tr style='background:#fdf0ff;'&gt;&lt;td style='padding:2px 8px;'&gt;🔗&lt;/td&gt;&lt;td style='padding:2px 8px;'&gt;asset_id&lt;/td&gt;&lt;td style='padding:2px 8px;color:#555;'&gt;INT FK (nullable)&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td style='padding:2px 8px;'&gt;🔗&lt;/td&gt;&lt;td style='padding:2px 8px;'&gt;district_id&lt;/td&gt;&lt;td style='padding:2px 8px;color:#555;'&gt;TINYINT FK&lt;/td&gt;&lt;/tr&gt;&lt;tr style='background:#fdf0ff;'&gt;&lt;td&gt;&lt;/td&gt;&lt;td style='padding:2px 8px;'&gt;category&lt;/td&gt;&lt;td style='padding:2px 8px;color:#555;'&gt;ENUM&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;&lt;/td&gt;&lt;td style='padding:2px 8px;'&gt;priority / status&lt;/td&gt;&lt;td style='padding:2px 8px;color:#555;'&gt;ENUM&lt;/td&gt;&lt;/tr&gt;&lt;tr style='background:#fdf0ff;'&gt;&lt;td&gt;&lt;/td&gt;&lt;td style='padding:2px 8px;'&gt;mongo_log_id&lt;/td&gt;&lt;td style='padding:2px 8px;color:#a00;'&gt;VARCHAR — bridge key&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;"
+            style="text;html=1;strokeColor=#7b2d8b;fillColor=#ffffff;
+                   align=left;verticalAlign=top;overflow=hidden;rotatable=0;fontSize=11;"
+            vertex="1" parent="1">
+      <mxGeometry x="500" y="530" width="300" height="200" as="geometry" />
+    </mxCell>
+
+    <!-- WORK_ORDERS -->
+    <mxCell id="t_wo"
+            value="&lt;table style='width:100%;border-collapse:collapse;font-size:11px;'&gt;&lt;tr style='background:#c75000;color:#fff;'&gt;&lt;td colspan='3' style='padding:4px 8px;font-weight:bold;font-size:12px;'&gt;work_orders&lt;/td&gt;&lt;/tr&gt;&lt;tr style='background:#fff0e8;'&gt;&lt;td style='padding:2px 8px;'&gt;🔑&lt;/td&gt;&lt;td style='padding:2px 8px;font-weight:bold;'&gt;work_order_id&lt;/td&gt;&lt;td style='padding:2px 8px;color:#555;'&gt;INT PK&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td style='padding:2px 8px;'&gt;🔗&lt;/td&gt;&lt;td style='padding:2px 8px;'&gt;request_id&lt;/td&gt;&lt;td style='padding:2px 8px;color:#555;'&gt;INT FK&lt;/td&gt;&lt;/tr&gt;&lt;tr style='background:#fff5f0;'&gt;&lt;td style='padding:2px 8px;'&gt;🔗&lt;/td&gt;&lt;td style='padding:2px 8px;'&gt;asset_id&lt;/td&gt;&lt;td style='padding:2px 8px;color:#555;'&gt;INT FK&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td style='padding:2px 8px;'&gt;🔗&lt;/td&gt;&lt;td style='padding:2px 8px;'&gt;supervisor_id&lt;/td&gt;&lt;td style='padding:2px 8px;color:#555;'&gt;INT FK&lt;/td&gt;&lt;/tr&gt;&lt;tr style='background:#fff5f0;'&gt;&lt;td&gt;&lt;/td&gt;&lt;td style='padding:2px 8px;'&gt;priority / status&lt;/td&gt;&lt;td style='padding:2px 8px;color:#555;'&gt;ENUM&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;&lt;/td&gt;&lt;td style='padding:2px 8px;'&gt;sla_deadline&lt;/td&gt;&lt;td style='padding:2px 8px;color:#555;'&gt;DATETIME&lt;/td&gt;&lt;/tr&gt;&lt;tr style='background:#fff5f0;'&gt;&lt;td&gt;&lt;/td&gt;&lt;td style='padding:2px 8px;'&gt;sla_breached&lt;/td&gt;&lt;td style='padding:2px 8px;color:#555;'&gt;TINYINT(1)&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;"
+            style="text;html=1;strokeColor=#c75000;fillColor=#ffffff;
+                   align=left;verticalAlign=top;overflow=hidden;rotatable=0;fontSize=11;"
+            vertex="1" parent="1">
+      <mxGeometry x="900" y="350" width="300" height="200" as="geometry" />
+    </mxCell>
+
+    <!-- WORK_ORDER_ASSIGNMENTS -->
+    <mxCell id="t_woa"
+            value="&lt;table style='width:100%;border-collapse:collapse;font-size:11px;'&gt;&lt;tr style='background:#666;color:#fff;'&gt;&lt;td colspan='3' style='padding:4px 8px;font-weight:bold;font-size:12px;'&gt;work_order_assignments&lt;/td&gt;&lt;/tr&gt;&lt;tr style='background:#f5f5f5;'&gt;&lt;td style='padding:2px 8px;'&gt;🔑&lt;/td&gt;&lt;td style='padding:2px 8px;font-weight:bold;'&gt;assignment_id&lt;/td&gt;&lt;td style='padding:2px 8px;color:#555;'&gt;INT PK&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td style='padding:2px 8px;'&gt;🔗&lt;/td&gt;&lt;td style='padding:2px 8px;'&gt;work_order_id&lt;/td&gt;&lt;td style='padding:2px 8px;color:#555;'&gt;INT FK&lt;/td&gt;&lt;/tr&gt;&lt;tr style='background:#f0f0f0;'&gt;&lt;td style='padding:2px 8px;'&gt;🔗&lt;/td&gt;&lt;td style='padding:2px 8px;'&gt;staff_id&lt;/td&gt;&lt;td style='padding:2px 8px;color:#555;'&gt;INT FK&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;&lt;/td&gt;&lt;td style='padding:2px 8px;'&gt;role_on_order&lt;/td&gt;&lt;td style='padding:2px 8px;color:#555;'&gt;ENUM&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;"
+            style="text;html=1;strokeColor=#666;fillColor=#ffffff;
+                   align=left;verticalAlign=top;overflow=hidden;rotatable=0;fontSize=11;"
+            vertex="1" parent="1">
+      <mxGeometry x="1270" y="280" width="280" height="120" as="geometry" />
+    </mxCell>
+
+    <!-- PARTS_USAGE -->
+    <mxCell id="t_pu"
+            value="&lt;table style='width:100%;border-collapse:collapse;font-size:11px;'&gt;&lt;tr style='background:#666;color:#fff;'&gt;&lt;td colspan='3' style='padding:4px 8px;font-weight:bold;font-size:12px;'&gt;parts_usage&lt;/td&gt;&lt;/tr&gt;&lt;tr style='background:#f5f5f5;'&gt;&lt;td style='padding:2px 8px;'&gt;🔑&lt;/td&gt;&lt;td style='padding:2px 8px;font-weight:bold;'&gt;usage_id&lt;/td&gt;&lt;td style='padding:2px 8px;color:#555;'&gt;INT PK&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td style='padding:2px 8px;'&gt;🔗&lt;/td&gt;&lt;td style='padding:2px 8px;'&gt;work_order_id&lt;/td&gt;&lt;td style='padding:2px 8px;color:#555;'&gt;INT FK&lt;/td&gt;&lt;/tr&gt;&lt;tr style='background:#f0f0f0;'&gt;&lt;td style='padding:2px 8px;'&gt;🔗&lt;/td&gt;&lt;td style='padding:2px 8px;'&gt;part_id&lt;/td&gt;&lt;td style='padding:2px 8px;color:#555;'&gt;INT FK&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;&lt;/td&gt;&lt;td style='padding:2px 8px;'&gt;unit_cost_at_time_zar&lt;/td&gt;&lt;td style='padding:2px 8px;color:#a00;'&gt;Point-in-time price&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;"
+            style="text;html=1;strokeColor=#666;fillColor=#ffffff;
+                   align=left;verticalAlign=top;overflow=hidden;rotatable=0;fontSize=11;"
+            vertex="1" parent="1">
+      <mxGeometry x="1270" y="460" width="280" height="120" as="geometry" />
+    </mxCell>
+
+    <!-- INSPECTIONS -->
+    <mxCell id="t_ins"
+            value="&lt;table style='width:100%;border-collapse:collapse;font-size:11px;'&gt;&lt;tr style='background:#666;color:#fff;'&gt;&lt;td colspan='3' style='padding:4px 8px;font-weight:bold;font-size:12px;'&gt;inspections&lt;/td&gt;&lt;/tr&gt;&lt;tr style='background:#f5f5f5;'&gt;&lt;td style='padding:2px 8px;'&gt;🔑&lt;/td&gt;&lt;td style='padding:2px 8px;font-weight:bold;'&gt;inspection_id&lt;/td&gt;&lt;td style='padding:2px 8px;color:#555;'&gt;INT PK&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td style='padding:2px 8px;'&gt;🔗&lt;/td&gt;&lt;td style='padding:2px 8px;'&gt;asset_id&lt;/td&gt;&lt;td style='padding:2px 8px;color:#555;'&gt;INT FK&lt;/td&gt;&lt;/tr&gt;&lt;tr style='background:#f0f0f0;'&gt;&lt;td style='padding:2px 8px;'&gt;🔗&lt;/td&gt;&lt;td style='padding:2px 8px;'&gt;inspector_id&lt;/td&gt;&lt;td style='padding:2px 8px;color:#555;'&gt;INT FK&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;&lt;/td&gt;&lt;td style='padding:2px 8px;'&gt;recommendation&lt;/td&gt;&lt;td style='padding:2px 8px;color:#555;'&gt;ENUM&lt;/td&gt;&lt;/tr&gt;&lt;tr style='background:#f0f0f0;'&gt;&lt;td&gt;&lt;/td&gt;&lt;td style='padding:2px 8px;'&gt;mongo_report_id&lt;/td&gt;&lt;td style='padding:2px 8px;color:#a00;'&gt;VARCHAR — bridge key&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;"
+            style="text;html=1;strokeColor=#666;fillColor=#ffffff;
+                   align=left;verticalAlign=top;overflow=hidden;rotatable=0;fontSize=11;"
+            vertex="1" parent="1">
+      <mxGeometry x="1270" y="640" width="280" height="150" as="geometry" />
+    </mxCell>
+
+    <!-- REQUEST_STATUS_HISTORY -->
+    <mxCell id="t_rsh"
+            value="&lt;table style='width:100%;border-collapse:collapse;font-size:11px;'&gt;&lt;tr style='background:#b00020;color:#fff;'&gt;&lt;td colspan='3' style='padding:4px 8px;font-weight:bold;font-size:12px;'&gt;request_status_history&lt;/td&gt;&lt;/tr&gt;&lt;tr style='background:#ffe8eb;'&gt;&lt;td style='padding:2px 8px;'&gt;🔑&lt;/td&gt;&lt;td style='padding:2px 8px;font-weight:bold;'&gt;history_id&lt;/td&gt;&lt;td style='padding:2px 8px;color:#555;'&gt;BIGINT PK&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td style='padding:2px 8px;'&gt;🔗&lt;/td&gt;&lt;td style='padding:2px 8px;'&gt;request_id&lt;/td&gt;&lt;td style='padding:2px 8px;color:#555;'&gt;INT FK&lt;/td&gt;&lt;/tr&gt;&lt;tr style='background:#fff0f2;'&gt;&lt;td&gt;&lt;/td&gt;&lt;td style='padding:2px 8px;'&gt;previous_status&lt;/td&gt;&lt;td style='padding:2px 8px;color:#555;'&gt;ENUM (nullable)&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;&lt;/td&gt;&lt;td style='padding:2px 8px;'&gt;new_status&lt;/td&gt;&lt;td style='padding:2px 8px;color:#555;'&gt;ENUM&lt;/td&gt;&lt;/tr&gt;&lt;tr style='background:#fff0f2;'&gt;&lt;td&gt;&lt;/td&gt;&lt;td style='padding:2px 8px;font-style:italic;'&gt;Trigger-populated only&lt;/td&gt;&lt;td style='padding:2px 8px;color:#a00;'&gt;Immutable audit log&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;"
+            style="text;html=1;strokeColor=#b00020;fillColor=#ffffff;
+                   align=left;verticalAlign=top;overflow=hidden;rotatable=0;fontSize=11;"
+            vertex="1" parent="1">
+      <mxGeometry x="500" y="810" width="300" height="160" as="geometry" />
+    </mxCell>
+
+    <!-- =====================================================================
+         RELATIONSHIPS (crow's foot edges)
+    ===================================================================== -->
+
+    <!-- districts -> assets (1:|{) -->
+    <mxCell id="r_dist_assets" value="1 : many"
+            style="endArrow=ERmanyToOne;startArrow=ERmandOne;html=1;
+                   strokeColor=#0d6e4e;strokeWidth=2;exitX=1;exitY=0.5;
+                   entryX=0;entryY=0.3;fontSize=10;"
+            edge="1" source="t_districts" target="t_assets" parent="1">
+      <mxGeometry relative="1" as="geometry" />
+    </mxCell>
+
+    <!-- districts -> staff -->
+    <mxCell id="r_dist_staff" value="1 : many"
+            style="endArrow=ERmanyToOne;startArrow=ERmandOne;html=1;
+                   strokeColor=#0d6e4e;strokeWidth=2;fontSize=10;"
+            edge="1" source="t_districts" target="t_staff" parent="1">
+      <mxGeometry relative="1" as="geometry" />
+    </mxCell>
+
+    <!-- asset_types -> assets (1:|{) -->
+    <mxCell id="r_at_assets" value="1 : many"
+            style="endArrow=ERmanyToOne;startArrow=ERmandOne;html=1;
+                   strokeColor=#0d6e4e;strokeWidth=2;fontSize=10;"
+            edge="1" source="t_asset_types" target="t_assets" parent="1">
+      <mxGeometry relative="1" as="geometry" />
+    </mxCell>
+
+    <!-- asset_types -> parts -->
+    <mxCell id="r_at_parts" value="1 : many"
+            style="endArrow=ERmanyToOne;startArrow=ERoneToMany;html=1;
+                   strokeColor=#1a4e8a;strokeWidth=2;fontSize=10;"
+            edge="1" source="t_asset_types" target="t_parts" parent="1">
+      <mxGeometry relative="1" as="geometry" />
+    </mxCell>
+
+    <!-- assets -> maintenance_requests -->
+    <mxCell id="r_assets_mreq" value="1 : many"
+            style="endArrow=ERmanyToOne;startArrow=ERoneToMany;html=1;
+                   strokeColor=#7b2d8b;strokeWidth=2;fontSize=10;"
+            edge="1" source="t_assets" target="t_mreq" parent="1">
+      <mxGeometry relative="1" as="geometry" />
+    </mxCell>
+
+    <!-- maintenance_requests -> work_orders -->
+    <mxCell id="r_mreq_wo" value="1 : many"
+            style="endArrow=ERmanyToOne;startArrow=ERmandOne;html=1;
+                   strokeColor=#c75000;strokeWidth=2;fontSize=10;"
+            edge="1" source="t_mreq" target="t_wo" parent="1">
+      <mxGeometry relative="1" as="geometry" />
+    </mxCell>
+
+    <!-- work_orders -> assignments -->
+    <mxCell id="r_wo_woa" value="1 : many"
+            style="endArrow=ERmanyToOne;startArrow=ERmandOne;html=1;
+                   strokeColor=#666;strokeWidth=2;fontSize=10;"
+            edge="1" source="t_wo" target="t_woa" parent="1">
+      <mxGeometry relative="1" as="geometry" />
+    </mxCell>
+
+    <!-- staff -> assignments -->
+    <mxCell id="r_staff_woa" value="1 : many"
+            style="endArrow=ERmanyToOne;startArrow=ERmandOne;html=1;
+                   strokeColor=#666;strokeWidth=2;fontSize=10;"
+            edge="1" source="t_staff" target="t_woa" parent="1">
+      <mxGeometry relative="1" as="geometry" />
+    </mxCell>
+
+    <!-- work_orders -> parts_usage -->
+    <mxCell id="r_wo_pu" value="1 : many"
+            style="endArrow=ERmanyToOne;startArrow=ERmandOne;html=1;
+                   strokeColor=#666;strokeWidth=2;fontSize=10;"
+            edge="1" source="t_wo" target="t_pu" parent="1">
+      <mxGeometry relative="1" as="geometry" />
+    </mxCell>
+
+    <!-- parts -> parts_usage -->
+    <mxCell id="r_parts_pu" value="1 : many"
+            style="endArrow=ERmanyToOne;startArrow=ERmandOne;html=1;
+                   strokeColor=#666;strokeWidth=2;fontSize=10;"
+            edge="1" source="t_parts" target="t_pu" parent="1">
+      <mxGeometry relative="1" as="geometry" />
+    </mxCell>
+
+    <!-- assets -> inspections -->
+    <mxCell id="r_assets_ins" value="1 : many"
+            style="endArrow=ERmanyToOne;startArrow=ERmandOne;html=1;
+                   strokeColor=#666;strokeWidth=2;fontSize=10;"
+            edge="1" source="t_assets" target="t_ins" parent="1">
+      <mxGeometry relative="1" as="geometry" />
+    </mxCell>
+
+    <!-- maintenance_requests -> status_history -->
+    <mxCell id="r_mreq_rsh" value="1 : many (trigger only)"
+            style="endArrow=ERmanyToOne;startArrow=ERmandOne;html=1;
+                   strokeColor=#b00020;strokeWidth=2;fontSize=10;dashed=1;"
+            edge="1" source="t_mreq" target="t_rsh" parent="1">
+      <mxGeometry relative="1" as="geometry" />
+    </mxCell>
+
+  </root>
+</mxGraphModel>
