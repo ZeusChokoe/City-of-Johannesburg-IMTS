@@ -1,5 +1,5 @@
 # City of Johannesburg IMTS
-## Graduate Attribute 9 — Independent Learning: Reflection Document
+## Graduate Attribute 9 Independent Learning: Reflection Document
 
 ---
 
@@ -84,8 +84,8 @@ definition of cross-domain knowledge transfer.
 
 **From ITSM to municipal maintenance:** The SLA breach detection system
 (MySQL EVENT + fn_calculate_sla_breach function) mirrors the escalation
-logic in ITIL-aligned service desks like ServiceNow. The pattern — define a
-deadline, measure against it continuously, escalate automatically — was
+logic in ITIL-aligned service desks like ServiceNow. The pattern define a
+deadline, measure against it continuously, escalate automatically was
 adapted from software service management to physical infrastructure
 maintenance, where the "incidents" are burst pipes and the "SLA" is the
 city's public commitment to respond within 4 hours to CRITICAL water failures.
@@ -93,8 +93,8 @@ city's public commitment to respond within 4 hours to CRITICAL water failures.
 **From ERP to parts inventory:** The point-in-time price snapshot in the
 parts_usage table (unit_cost_at_time_zar stores the price at the moment of
 use, not the current price) is a standard ERP pattern for historical cost
-accuracy. Applying it to a municipal maintenance context — where the cost of
-a 25mm UPVC pipe changes with the rand/dollar exchange rate — required
+accuracy. Applying it to a municipal maintenance context where the cost of
+a 25mm UPVC pipe changes with the rand/dollar exchange rate required
 recognising the pattern and adapting it to a new data domain.
 
 **From JavaScript promises to database concurrency:** The Promise.all()
@@ -136,7 +136,7 @@ Node.js production deployment standard. The SIGTERM handler is specifically
 required by Kubernetes pod eviction a current infrastructure operations
 concern.
 
-**GQL — the emerging graph query standard:** ISO/IEC 39075:2024 (GQL) is
+**GQL the emerging graph query standard:** ISO/IEC 39075:2024 (GQL) is
 the first international graph query language standard, ratified in 2024.
 Cypher (Neo4j's query language) was a primary influence on its design.
 Understanding Cypher now means understanding the direction the graph database
@@ -145,7 +145,7 @@ it became the universal relational standard.
 
 ---
 
-## 5. Reflection — Lessons Learned
+## 5. Reflection Lessons Learned
 *Ability to reflect on experiences and apply results to subsequent situations.
 Learns from successes and mistakes, and recognises limitations.*
 
@@ -178,7 +178,7 @@ index-supported. This is a graph-specific lesson: in relational databases,
 lookup tables are for normalisation; in graph databases, they are for
 traversal performance.
 
-**Recognised limitation — no distributed transaction:** The four-step write
+**Recognised limitation no distributed transaction:** The four-step write
 sequence in the submitRequest API endpoint (MySQL → MongoDB → Neo4j → MySQL
 update) has no distributed transaction. If the Neo4j write fails after the
 MySQL and MongoDB writes succeed, the system is in a partially inconsistent
@@ -188,9 +188,9 @@ This is an honest recognition of a genuine distributed systems limitation eventu
 workload, but the boundary between "eventually consistent" and "permanently
 inconsistent" must be managed explicitly. In a production deployment, a
 message queue (RabbitMQ or Kafka) between the API and the database writes
-would solve this — that is the correct next architectural step.
+would solve this that is the correct next architectural step.
 
-**Recognised limitation — cursor performance in sp_generate_district_report:**
+**Recognised limitation cursor performance in sp_generate_district_report:**
 The Phase 2 cursor-based district report procedure iterates row-by-row and
 calls three scalar functions per row. For a district with 50 open work orders,
 this is acceptable. For a city-wide report with 5,000 orders, it is not. The
@@ -213,5 +213,5 @@ a more valuable skill than knowing the pattern alone.
 
 ---
 
-*City of Johannesburg Public Works Department — IMTS*
-*Database Management System — Phase 6 Documentation*
+*City of Johannesburg Public Works Department IMTS By ZEUS*
+*Database Management System Phase 6 Documentation*
