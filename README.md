@@ -29,7 +29,7 @@ the assigned textbook.
 **Evidence in the codebase:** The `asset_readings` embedded sub-document in
 MongoDB maintenance_logs has a deliberately variable schema per asset type.
 A burst pipe log has pressure readings; a streetlight log has current draws.
-This design decision was not in any prescribed reading — it emerged from
+This design decision was not in any prescribed reading it emerged from
 asking "what data does a water pipe technician actually capture that a
 streetlight technician does not?"
 
