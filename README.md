@@ -101,7 +101,7 @@ recognising the pattern and adapting it to a new data domain.
 pattern in the REST API controllers runs MySQL, MongoDB, and Neo4j queries
 in parallel. The total API response latency equals the slowest query, not the
 sum of all queries. This applies the event-loop concurrency model from
-Node.js to a database integration problem — a direct transfer of prior
+Node.js to a database integration problem a direct transfer of prior
 knowledge to a new architectural context.
 
 ---
