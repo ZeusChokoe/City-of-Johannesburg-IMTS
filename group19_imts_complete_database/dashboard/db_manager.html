@@ -1,0 +1,1664 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Group 19 Database Manager Powerd By ZF</title>
+    <link rel="icon" href="zeus_icon_transparent.png" />
+    <style>
+      :root {
+        --bg: #0f1117;
+        --bg2: #1a1d2e;
+        --bg3: #252840;
+        --bg4: #1e2235;
+        --border: #2e3250;
+        --text: #e2e4f0;
+        --muted: #8b90b0;
+        --accent: #6c63ff;
+        --green: #22c55e;
+        --red: #ef4444;
+        --yellow: #f59e0b;
+        --blue: #3b82f6;
+        --mysql: #f59e0b;
+        --mongo: #22c55e;
+        --neo4j: #f97316;
+        --r: 10px;
+        --sh: 0 4px 24px rgba(0, 0, 0, 0.5);
+      }
+      * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+      body {
+        background: var(--bg);
+        color: var(--text);
+        font-family: "Segoe UI", system-ui, sans-serif;
+        font-size: 13px;
+        display: flex;
+        flex-direction: column;
+        height: 100vh;
+        overflow: hidden;
+      }
+
+      /* ── Top bar ── */
+      .topbar {
+        background: var(--bg2);
+        border-bottom: 1px solid var(--border);
+        padding: 10px 20px;
+        display: flex;
+        align-items: center;
+        gap: 16px;
+        flex-shrink: 0;
+      }
+      .topbar-brand {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        font-weight: 700;
+        font-size: 15px;
+      }
+      .topbar-brand .icon {
+        width: 32px;
+        height: 32px;
+        background: var(--accent);
+        border-radius: 8px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 16px;
+        overflow: hidden;
+      }
+      .topbar-brand .icon img {
+        width: 100%;
+        height: 100%;
+        object-fit: contain;
+        display: block;
+      }
+      .topbar-tabs {
+        display: flex;
+        gap: 4px;
+        margin-left: auto;
+      }
+      .tab-btn {
+        padding: 6px 16px;
+        border: 1px solid var(--border);
+        border-radius: 6px;
+        background: transparent;
+        color: var(--muted);
+        cursor: pointer;
+        font-size: 12px;
+        font-weight: 600;
+        transition: all 0.15s;
+      }
+      .tab-btn.active {
+        background: var(--accent);
+        border-color: var(--accent);
+        color: #fff;
+      }
+      .tab-btn:hover:not(.active) {
+        background: var(--bg3);
+        color: var(--text);
+      }
+      .home-btn {
+        padding: 6px 14px;
+        border: 1px solid var(--border);
+        border-radius: 6px;
+        background: var(--bg3);
+        color: var(--muted);
+        cursor: pointer;
+        font-size: 12px;
+        text-decoration: none;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+      }
+      .home-btn:hover {
+        color: var(--text);
+      }
+      .conn-dot {
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        background: var(--red);
+        display: inline-block;
+      }
+      .conn-dot.ok {
+        background: var(--green);
+        box-shadow: 0 0 6px var(--green);
+      }
+      .conn-status {
+        font-size: 11px;
+        color: var(--muted);
+        display: flex;
+        align-items: center;
+        gap: 6px;
+      }
+
+      /* ── Layout ── */
+      .layout {
+        display: flex;
+        flex: 1;
+        overflow: hidden;
+      }
+
+      /* ── Sidebar ── */
+      .sidebar {
+        width: 240px;
+        background: var(--bg2);
+        border-right: 1px solid var(--border);
+        display: flex;
+        flex-direction: column;
+        flex-shrink: 0;
+        overflow: hidden;
+      }
+      .sidebar-section {
+        padding: 10px 12px 4px;
+        font-size: 10px;
+        font-weight: 700;
+        letter-spacing: 0.1em;
+        text-transform: uppercase;
+        color: var(--muted);
+      }
+      .sidebar-item {
+        padding: 8px 14px;
+        cursor: pointer;
+        border-radius: 6px;
+        margin: 1px 6px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        font-size: 12px;
+        transition: background 0.1s;
+      }
+      .sidebar-item:hover {
+        background: var(--bg3);
+      }
+      .sidebar-item.active {
+        background: var(--bg3);
+        color: var(--accent);
+      }
+      .sidebar-item .badge {
+        margin-left: auto;
+        background: var(--bg);
+        border: 1px solid var(--border);
+        border-radius: 10px;
+        padding: 1px 7px;
+        font-size: 10px;
+        color: var(--muted);
+      }
+      .sidebar-item.mysql .s-icon {
+        color: var(--mysql);
+      }
+      .sidebar-item.mongo .s-icon {
+        color: var(--mongo);
+      }
+      .sidebar-item.neo4j .s-icon {
+        color: var(--neo4j);
+      }
+      .sidebar-scroll {
+        overflow-y: auto;
+        flex: 1;
+      }
+      .sidebar-divider {
+        height: 1px;
+        background: var(--border);
+        margin: 8px 12px;
+      }
+
+      /* ── Content area ── */
+      .content {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        overflow: hidden;
+      }
+
+      /* ── Content header ── */
+      .content-header {
+        background: var(--bg2);
+        border-bottom: 1px solid var(--border);
+        padding: 12px 20px;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        flex-shrink: 0;
+      }
+      .content-header h2 {
+        font-size: 15px;
+        font-weight: 700;
+        flex: 1;
+      }
+      .content-header .db-tag {
+        padding: 3px 10px;
+        border-radius: 12px;
+        font-size: 10px;
+        font-weight: 700;
+      }
+      .tag-mysql {
+        background: rgba(245, 158, 11, 0.15);
+        color: var(--mysql);
+      }
+      .tag-mongo {
+        background: rgba(34, 197, 94, 0.15);
+        color: var(--mongo);
+      }
+      .tag-neo4j {
+        background: rgba(249, 115, 22, 0.15);
+        color: var(--neo4j);
+      }
+
+      /* ── Toolbar ── */
+      .toolbar {
+        padding: 10px 20px;
+        background: var(--bg4);
+        border-bottom: 1px solid var(--border);
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        flex-wrap: wrap;
+        flex-shrink: 0;
+      }
+      .tb-input {
+        background: var(--bg3);
+        border: 1px solid var(--border);
+        border-radius: 6px;
+        color: var(--text);
+        padding: 6px 10px;
+        font-size: 12px;
+        outline: none;
+      }
+      .tb-input:focus {
+        border-color: var(--accent);
+      }
+      .tb-btn {
+        padding: 6px 14px;
+        border-radius: 6px;
+        border: 1px solid var(--border);
+        background: var(--bg3);
+        color: var(--text);
+        cursor: pointer;
+        font-size: 12px;
+        font-weight: 600;
+        transition: all 0.15s;
+        white-space: nowrap;
+      }
+      .tb-btn:hover {
+        background: var(--bg);
+        border-color: var(--accent);
+        color: var(--accent);
+      }
+      .tb-btn.primary {
+        background: var(--accent);
+        border-color: var(--accent);
+        color: #fff;
+      }
+      .tb-btn.primary:hover {
+        opacity: 0.85;
+      }
+      .tb-btn.danger {
+        border-color: var(--red);
+        color: var(--red);
+      }
+      .tb-btn.danger:hover {
+        background: rgba(239, 68, 68, 0.1);
+      }
+      .tb-spacer {
+        flex: 1;
+      }
+      .tb-count {
+        font-size: 11px;
+        color: var(--muted);
+      }
+
+      /* ── Table area ── */
+      .table-area {
+        flex: 1;
+        overflow: auto;
+        padding: 0;
+      }
+      .data-table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 12px;
+      }
+      .data-table thead tr {
+        background: var(--bg3);
+        position: sticky;
+        top: 0;
+        z-index: 5;
+      }
+      .data-table th {
+        padding: 10px 14px;
+        text-align: left;
+        font-size: 10px;
+        font-weight: 700;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        color: var(--muted);
+        border-bottom: 1px solid var(--border);
+        white-space: nowrap;
+      }
+      .data-table td {
+        padding: 9px 14px;
+        border-bottom: 1px solid rgba(46, 50, 80, 0.5);
+        max-width: 300px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
+      .data-table tr:hover td {
+        background: rgba(255, 255, 255, 0.02);
+      }
+      .data-table .action-cell {
+        display: flex;
+        gap: 4px;
+      }
+      .act-btn {
+        padding: 3px 8px;
+        border-radius: 4px;
+        border: 1px solid var(--border);
+        background: transparent;
+        color: var(--muted);
+        cursor: pointer;
+        font-size: 11px;
+        transition: all 0.1s;
+      }
+      .act-btn:hover {
+        background: var(--bg3);
+        color: var(--text);
+      }
+      .act-btn.edit:hover {
+        border-color: var(--blue);
+        color: var(--blue);
+      }
+      .act-btn.del:hover {
+        border-color: var(--red);
+        color: var(--red);
+      }
+      .null-val {
+        color: var(--muted);
+        font-style: italic;
+      }
+      .long-val {
+        cursor: pointer;
+        text-decoration: underline dotted;
+        color: var(--muted);
+      }
+
+      /* ── Pagination ── */
+      .pagination {
+        padding: 10px 20px;
+        background: var(--bg2);
+        border-top: 1px solid var(--border);
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        flex-shrink: 0;
+      }
+      .pg-btn {
+        padding: 4px 12px;
+        border: 1px solid var(--border);
+        border-radius: 5px;
+        background: transparent;
+        color: var(--muted);
+        cursor: pointer;
+        font-size: 11px;
+      }
+      .pg-btn:hover:not(:disabled) {
+        background: var(--bg3);
+        color: var(--text);
+      }
+      .pg-btn:disabled {
+        opacity: 0.35;
+        cursor: not-allowed;
+      }
+      .pg-info {
+        font-size: 11px;
+        color: var(--muted);
+        margin: 0 8px;
+      }
+
+      /* ── Query console ── */
+      .query-console {
+        display: flex;
+        flex-direction: column;
+        height: 100%;
+        overflow: hidden;
+      }
+      .query-editor-wrap {
+        padding: 16px 20px;
+        flex-shrink: 0;
+      }
+      .query-editor {
+        width: 100%;
+        height: 120px;
+        background: var(--bg3);
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        color: var(--text);
+        padding: 12px;
+        font-family: "Cascadia Code", "Fira Code", Consolas, monospace;
+        font-size: 13px;
+        resize: vertical;
+        outline: none;
+        line-height: 1.5;
+      }
+      .query-editor:focus {
+        border-color: var(--accent);
+      }
+      .query-results {
+        flex: 1;
+        overflow: auto;
+        padding: 0 20px 20px;
+      }
+      .query-meta {
+        font-size: 11px;
+        color: var(--muted);
+        margin-bottom: 8px;
+        padding: 8px 0;
+      }
+
+      /* ── Modal ── */
+      .modal-overlay {
+        position: fixed;
+        inset: 0;
+        background: rgba(0, 0, 0, 0.7);
+        backdrop-filter: blur(4px);
+        z-index: 1000;
+        display: none;
+        align-items: center;
+        justify-content: center;
+      }
+      .modal-overlay.open {
+        display: flex;
+      }
+      .modal {
+        background: var(--bg2);
+        border: 1px solid var(--border);
+        border-radius: var(--r);
+        box-shadow: var(--sh);
+        width: 560px;
+        max-width: 95vw;
+        max-height: 85vh;
+        display: flex;
+        flex-direction: column;
+      }
+      .modal-header {
+        padding: 16px 20px;
+        border-bottom: 1px solid var(--border);
+        display: flex;
+        align-items: center;
+        gap: 10px;
+      }
+      .modal-header h3 {
+        font-size: 15px;
+        font-weight: 700;
+        flex: 1;
+      }
+      .modal-close {
+        background: none;
+        border: none;
+        color: var(--muted);
+        cursor: pointer;
+        font-size: 20px;
+        line-height: 1;
+      }
+      .modal-body {
+        padding: 20px;
+        overflow-y: auto;
+        flex: 1;
+      }
+      .modal-footer {
+        padding: 12px 20px;
+        border-top: 1px solid var(--border);
+        display: flex;
+        justify-content: flex-end;
+        gap: 8px;
+      }
+      .form-row {
+        margin-bottom: 14px;
+      }
+      .form-label {
+        font-size: 11px;
+        font-weight: 700;
+        color: var(--muted);
+        letter-spacing: 0.05em;
+        text-transform: uppercase;
+        margin-bottom: 4px;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+      }
+      .form-label .pk {
+        background: rgba(108, 99, 255, 0.2);
+        color: var(--accent);
+        padding: 1px 5px;
+        border-radius: 3px;
+        font-size: 9px;
+      }
+      .form-label .fk {
+        background: rgba(59, 130, 246, 0.2);
+        color: var(--blue);
+        padding: 1px 5px;
+        border-radius: 3px;
+        font-size: 9px;
+      }
+      .form-input {
+        width: 100%;
+        background: var(--bg3);
+        border: 1px solid var(--border);
+        border-radius: 6px;
+        color: var(--text);
+        padding: 8px 10px;
+        font-size: 12px;
+        outline: none;
+      }
+      .form-input:focus {
+        border-color: var(--accent);
+      }
+      .form-input:read-only {
+        opacity: 0.5;
+        cursor: not-allowed;
+      }
+
+      /* ── JSON viewer ── */
+      .json-view {
+        background: var(--bg3);
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        padding: 14px;
+        font-family: Consolas, monospace;
+        font-size: 11px;
+        white-space: pre-wrap;
+        word-break: break-all;
+        max-height: 60vh;
+        overflow: auto;
+        color: var(--text);
+      }
+      .json-key {
+        color: var(--blue);
+      }
+      .json-str {
+        color: var(--green);
+      }
+      .json-num {
+        color: var(--yellow);
+      }
+      .json-bool {
+        color: var(--neo4j);
+      }
+      .json-null {
+        color: var(--muted);
+        font-style: italic;
+      }
+
+      /* ── Empty / error states ── */
+      .empty {
+        padding: 60px 20px;
+        text-align: center;
+        color: var(--muted);
+      }
+      .empty .big {
+        font-size: 36px;
+        margin-bottom: 10px;
+      }
+      .err-state {
+        padding: 20px;
+        background: rgba(239, 68, 68, 0.08);
+        border: 1px solid rgba(239, 68, 68, 0.3);
+        border-radius: 8px;
+        margin: 20px;
+        color: var(--red);
+        font-size: 12px;
+      }
+      .spinner {
+        display: inline-block;
+        width: 18px;
+        height: 18px;
+        border: 2px solid var(--border);
+        border-top-color: var(--accent);
+        border-radius: 50%;
+        animation: spin 0.7s linear infinite;
+      }
+      @keyframes spin {
+        to {
+          transform: rotate(360deg);
+        }
+      }
+      .loading-row td {
+        padding: 40px;
+        text-align: center;
+        color: var(--muted);
+      }
+
+      /* ── Neo4j graph-ish display ── */
+      .node-card {
+        background: var(--bg3);
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        padding: 12px;
+        margin: 4px;
+        display: inline-flex;
+        flex-direction: column;
+        gap: 4px;
+        min-width: 180px;
+        max-width: 240px;
+        font-size: 11px;
+        vertical-align: top;
+      }
+      .node-card .n-label {
+        font-weight: 700;
+        font-size: 12px;
+        color: var(--neo4j);
+        border-bottom: 1px solid var(--border);
+        padding-bottom: 4px;
+        margin-bottom: 4px;
+      }
+      .node-prop {
+        display: flex;
+        gap: 6px;
+        overflow: hidden;
+      }
+      .node-prop .pk {
+        color: var(--muted);
+        flex-shrink: 0;
+      }
+      .node-prop .pv {
+        color: var(--text);
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
+      .nodes-grid {
+        padding: 16px;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        overflow: auto;
+        flex: 1;
+      }
+
+      /* ── Confirm dialog ── */
+      .confirm-msg {
+        font-size: 13px;
+        line-height: 1.6;
+        margin-bottom: 16px;
+      }
+      .confirm-warn {
+        background: rgba(239, 68, 68, 0.1);
+        border: 1px solid rgba(239, 68, 68, 0.3);
+        border-radius: 6px;
+        padding: 10px 14px;
+        font-size: 12px;
+        color: var(--red);
+      }
+    </style>
+  </head>
+  <body>
+    <!-- Top bar -->
+    <div class="topbar">
+      <div class="topbar-brand">
+        <div class="icon">
+          <img src="zeus_icon_transparent.png" alt="Zeus" />
+        </div>
+        Group 19 Database Manager
+      </div>
+      <div class="conn-status">
+        <span class="conn-dot" id="dot-mysql"></span>MySQL
+        <span class="conn-dot" style="margin-left: 8px" id="dot-mongo"></span
+        >MongoDB
+        <span class="conn-dot" style="margin-left: 8px" id="dot-neo4j"></span
+        >Neo4j
+      </div>
+      <div class="topbar-tabs">
+        <button class="tab-btn active" onclick="switchTab('mysql')">
+          🐬 MySQL
+        </button>
+        <button class="tab-btn" onclick="switchTab('mongo')">🍃 MongoDB</button>
+        <button class="tab-btn" onclick="switchTab('neo4j')">🕸️ Neo4j</button>
+      </div>
+      <a href="index.html" class="home-btn">← Dashboard</a>
+    </div>
+
+    <div class="layout">
+      <!-- Sidebar -->
+      <div class="sidebar">
+        <div class="sidebar-scroll" id="sidebar-content">
+          <div class="empty" style="padding: 40px 10px; font-size: 12px">
+            Loading...
+          </div>
+        </div>
+      </div>
+
+      <!-- Content -->
+      <div class="content" id="content-area">
+        <div class="content-header">
+          <h2 id="content-title">Select a table or collection</h2>
+        </div>
+        <div class="empty" style="flex: 1">
+          <div class="big">
+            <img
+              src="zeus_icon_transparent.png"
+              alt="Zeus"
+              style="
+                width: 64px;
+                height: 64px;
+                display: block;
+                margin: 0 auto 8px;
+              "
+            />
+          </div>
+          <div>
+            Choose a table from the sidebar to browse, edit, and query your
+            data.
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Edit / Insert Modal -->
+    <div class="modal-overlay" id="edit-modal">
+      <div class="modal">
+        <div class="modal-header">
+          <h3 id="modal-title">Edit Row</h3>
+          <button class="modal-close" onclick="closeModal()">✕</button>
+        </div>
+        <div class="modal-body" id="modal-body"></div>
+        <div class="modal-footer">
+          <button class="tb-btn" onclick="closeModal()">Cancel</button>
+          <button
+            class="tb-btn primary"
+            id="modal-save-btn"
+            onclick="saveModal()"
+          >
+            Save
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Confirm Modal -->
+    <div class="modal-overlay" id="confirm-modal">
+      <div class="modal" style="width: 420px">
+        <div class="modal-header">
+          <h3 id="confirm-title">Confirm</h3>
+          <button class="modal-close" onclick="closeConfirm()">✕</button>
+        </div>
+        <div class="modal-body">
+          <p class="confirm-msg" id="confirm-msg"></p>
+          <div class="confirm-warn" id="confirm-warn"></div>
+        </div>
+        <div class="modal-footer">
+          <button class="tb-btn" onclick="closeConfirm()">Cancel</button>
+          <button class="tb-btn danger" id="confirm-ok-btn">Confirm</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Long value modal -->
+    <div class="modal-overlay" id="value-modal">
+      <div class="modal" style="width: 680px">
+        <div class="modal-header">
+          <h3 id="value-modal-title">Full Value</h3>
+          <button
+            class="modal-close"
+            onclick="
+              document.getElementById('value-modal').classList.remove('open')
+            "
+          >
+            ✕
+          </button>
+        </div>
+        <div class="modal-body">
+          <div class="json-view" id="value-modal-body"></div>
+        </div>
+        <div class="modal-footer">
+          <button
+            class="tb-btn"
+            onclick="
+              document.getElementById('value-modal').classList.remove('open')
+            "
+          >
+            Close
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      const API = "http://localhost:3000/api/v1";
+
+      // ── State ────────────────────────────────────────────────────
+      let state = {
+        tab: "mysql",
+        target: null, // current table / collection / label
+        offset: 0,
+        limit: 50,
+        search: "",
+        total: 0,
+        columns: [],
+        pkCol: null,
+        modalMode: null, // "insert" | "edit"
+        modalData: {},
+        confirmCb: null,
+      };
+
+      // ── Helpers ──────────────────────────────────────────────────
+      const el = (id) => document.getElementById(id);
+      const esc = (s) =>
+        String(s ?? "")
+          .replace(/&/g, "&amp;")
+          .replace(/</g, "&lt;")
+          .replace(/>/g, "&gt;")
+          .replace(/"/g, "&quot;");
+      async function api(path, opts = {}) {
+        const r = await fetch(API + path, {
+          headers: { "Content-Type": "application/json" },
+          ...opts,
+        });
+        const j = await r
+          .json()
+          .catch(() => ({ success: false, error: "Invalid JSON" }));
+        if (!j.success && r.status !== 400)
+          console.warn("API error:", path, j.error);
+        return j;
+      }
+
+      function pill(text, color) {
+        const map = {
+          CRITICAL: "red",
+          HIGH: "yellow",
+          MEDIUM: "blue",
+          LOW: "blue",
+          OPERATIONAL: "green",
+          DEGRADED: "yellow",
+          FAILED: "red",
+          SUBMITTED: "blue",
+          IN_PROGRESS: "yellow",
+          RESOLVED: "green",
+          COMPLETED: "green",
+        };
+        const c = color || map[text] || "purple";
+        const colors = {
+          red: "rgba(239,68,68,0.15);color:#ef4444",
+          yellow: "rgba(245,158,11,0.15);color:#f59e0b",
+          green: "rgba(34,197,94,0.15);color:#22c55e",
+          blue: "rgba(59,130,246,0.15);color:#3b82f6",
+          purple: "rgba(108,99,255,0.15);color:#6c63ff",
+        };
+        return `<span style="background:${colors[c] || colors.purple};padding:2px 8px;border-radius:12px;font-size:10px;font-weight:700;">${esc(text)}</span>`;
+      }
+
+      function formatCell(val, col) {
+        if (val === null || val === undefined)
+          return `<span class="null-val">NULL</span>`;
+        const s = String(val);
+        if (s.length > 80)
+          return `<span class="long-val" onclick="showValue('${esc(col)}', ${JSON.stringify(val)})">${esc(s.substring(0, 80))}…</span>`;
+        // Colour ENUM-like values
+        if (
+          [
+            "CRITICAL",
+            "HIGH",
+            "MEDIUM",
+            "LOW",
+            "OPERATIONAL",
+            "DEGRADED",
+            "FAILED",
+            "SUBMITTED",
+            "IN_PROGRESS",
+            "RESOLVED",
+            "COMPLETED",
+            "CANCELLED",
+            "DRAFT",
+            "APPROVED",
+          ].includes(s)
+        )
+          return pill(s);
+        if (
+          s === "1" &&
+          (col.includes("active") ||
+            col.includes("breach") ||
+            col.includes("archived"))
+        )
+          return pill(
+            col.includes("breach") || col.includes("archived")
+              ? "YES"
+              : "ACTIVE",
+            "green",
+          );
+        if (
+          s === "0" &&
+          (col.includes("active") ||
+            col.includes("breach") ||
+            col.includes("archived"))
+        )
+          return pill(
+            col.includes("breach") || col.includes("archived")
+              ? "NO"
+              : "INACTIVE",
+            "red",
+          );
+        return esc(s);
+      }
+
+      function showValue(col, val) {
+        el("value-modal-title").textContent = col;
+        const s =
+          typeof val === "object" ? JSON.stringify(val, null, 2) : String(val);
+        el("value-modal-body").textContent = s;
+        el("value-modal").classList.add("open");
+      }
+
+      // ── Connection dots ──────────────────────────────────────────
+      async function checkConnections() {
+        const j = await api("/health/deep").catch(() => ({}));
+        const d = j.databases || {};
+        ["mysql", "mongo", "neo4j"].forEach((s) => {
+          const key = s === "mongo" ? "mongodb" : s;
+          const dot = el("dot-" + s);
+          if (dot) dot.className = "conn-dot" + (d[key] === "OK" ? " ok" : "");
+        });
+      }
+
+      // ── Tab switching ────────────────────────────────────────────
+      let tabBtns = document.querySelectorAll(".tab-btn");
+      function switchTab(tab) {
+        state.tab = tab;
+        state.target = null;
+        state.offset = 0;
+        tabBtns.forEach((b, i) =>
+          b.classList.toggle("active", ["mysql", "mongo", "neo4j"][i] === tab),
+        );
+        loadSidebar();
+        resetContent();
+      }
+
+      function resetContent() {
+        el("content-area").innerHTML = `
+    <div class="content-header"><h2 id="content-title">Select a table or collection</h2></div>
+    <div class="empty" style="flex:1;"><div class="big">🗄️</div>
+    <div>Choose an item from the sidebar to browse your data.</div></div>`;
+      }
+
+      // ── Sidebar ──────────────────────────────────────────────────
+      async function loadSidebar() {
+        const sb = el("sidebar-content");
+        sb.innerHTML = `<div class="empty" style="padding:30px 10px;"><div class="spinner"></div></div>`;
+
+        if (state.tab === "mysql") {
+          const j = await api("/db/mysql/tables");
+          if (!j.success) {
+            sb.innerHTML = errHTML(j.error);
+            return;
+          }
+          const sections = [
+            {
+              label: "Core Tables",
+              icon: "🐬",
+              color: "mysql",
+              tables: j.tables.filter((t) =>
+                ["districts", "asset_types", "assets", "staff"].includes(
+                  t.name,
+                ),
+              ),
+            },
+            {
+              label: "Operations",
+              icon: "⚙️",
+              color: "mysql",
+              tables: j.tables.filter((t) =>
+                [
+                  "maintenance_requests",
+                  "work_orders",
+                  "work_order_assignments",
+                ].includes(t.name),
+              ),
+            },
+            {
+              label: "Inventory & Audit",
+              icon: "📦",
+              color: "mysql",
+              tables: j.tables.filter((t) =>
+                [
+                  "parts_inventory",
+                  "parts_usage",
+                  "inspections",
+                  "request_status_history",
+                ].includes(t.name),
+              ),
+            },
+          ];
+          let html = "";
+          for (const sec of sections) {
+            if (!sec.tables.length) continue;
+            html += `<div class="sidebar-section">${sec.label}</div>`;
+            for (const t of sec.tables) {
+              html += `<div class="sidebar-item mysql${state.target === t.name ? " active" : ""}" onclick="loadMysqlTable('${t.name}')">
+          <span class="s-icon">${sec.icon}</span>${t.name}
+          <span class="badge">${Number(t.approx_rows || 0).toLocaleString()}</span></div>`;
+            }
+          }
+          // Views
+          html += `<div class="sidebar-section">Views</div>`;
+          const views = [
+            "v_open_requests",
+            "v_sla_breached_orders",
+            "v_low_stock_alerts",
+            "v_asset_condition_by_district",
+            "v_request_audit_trail",
+          ];
+          views.forEach((v) => {
+            html += `<div class="sidebar-item mysql${state.target === v ? " active" : ""}" onclick="loadMysqlTable('${v}')">
+        <span class="s-icon">👁️</span>${v}<span class="badge">view</span></div>`;
+          });
+          html += `<div class="sidebar-divider"></div>`;
+          html += `<div class="sidebar-item" onclick="openQueryConsole('mysql')"><span class="s-icon" style="color:var(--accent)">⌨️</span>SQL Query Console</div>`;
+          sb.innerHTML = html;
+        } else if (state.tab === "mongo") {
+          const j = await api("/db/mongo/collections");
+          if (!j.success) {
+            sb.innerHTML = errHTML(j.error);
+            return;
+          }
+          let html = `<div class="sidebar-section">Collections</div>`;
+          for (const c of j.collections) {
+            html += `<div class="sidebar-item mongo${state.target === c.name ? " active" : ""}" onclick="loadMongoCollection('${c.name}')">
+        <span class="s-icon">🍃</span>${c.name}<span class="badge">${c.count.toLocaleString()}</span></div>`;
+          }
+          html += `<div class="sidebar-divider"></div>`;
+          html += `<div class="sidebar-item" onclick="openQueryConsole('mongo')"><span class="s-icon" style="color:var(--accent)">⌨️</span>Aggregation / Find</div>`;
+          sb.innerHTML = html;
+        } else {
+          const j = await api("/db/neo4j/nodes");
+          if (!j.success) {
+            sb.innerHTML = errHTML(j.error);
+            return;
+          }
+          let html = `<div class="sidebar-section">Node Labels</div>`;
+          for (const l of j.labels || []) {
+            html += `<div class="sidebar-item neo4j${state.target === l.label ? " active" : ""}" onclick="loadNeo4jLabel('${l.label}')">
+        <span class="s-icon">🔵</span>${l.label}<span class="badge">${l.count}</span></div>`;
+          }
+          html += `<div class="sidebar-divider"></div>`;
+          html += `<div class="sidebar-item" onclick="openQueryConsole('neo4j')"><span class="s-icon" style="color:var(--accent)">⌨️</span>Cypher Console</div>`;
+          sb.innerHTML = html;
+        }
+      }
+
+      function errHTML(msg) {
+        return `<div style="padding:16px;"><div class="err-state">${esc(msg || "Connection failed")}<br><br>
+  <b>Make sure:</b><br>• API is running (node server.js)<br>• Database service is started</div></div>`;
+      }
+
+      // ── MySQL Table Loader ───────────────────────────────────────
+      async function loadMysqlTable(name, offset) {
+        state.target = name;
+        state.offset = offset ?? 0;
+        const isView = name.startsWith("v_");
+
+        el("content-area").innerHTML = `
+    <div class="content-header">
+      <h2 id="content-title">${esc(name)}</h2>
+      <span class="db-tag tag-mysql">MySQL · group19</span>
+      ${!isView ? `<button class="tb-btn primary" onclick="openInsertModal()">+ Insert Row</button>` : ""}
+    </div>
+    <div class="toolbar">
+      <input class="tb-input" style="width:220px" placeholder="Search…" id="search-input" value="${esc(state.search)}" onkeydown="if(event.key==='Enter'){state.search=this.value;loadMysqlTable('${name}',0);}">
+      <button class="tb-btn" onclick="state.search=el('search-input').value;loadMysqlTable('${name}',0)">Search</button>
+      <button class="tb-btn" onclick="state.search='';el('search-input').value='';loadMysqlTable('${name}',0)">Clear</button>
+      <div class="tb-spacer"></div>
+      <span class="tb-count" id="row-count">Loading…</span>
+    </div>
+    <div class="table-area" id="table-area"><table class="data-table"><thead><tr><td colspan="99" style="padding:40px;text-align:center;"><div class="spinner"></div></td></tr></thead></table></div>
+    <div class="pagination" id="pagination"></div>`;
+
+        // Load columns
+        if (!isView) {
+          const colData = await api("/db/mysql/table/" + name + "/columns");
+          if (colData.success) {
+            state.columns = colData.columns;
+            state.pkCol =
+              colData.columns.find((c) => c.COLUMN_KEY === "PRI")
+                ?.COLUMN_NAME || null;
+          }
+        }
+
+        // Load rows
+        const params = new URLSearchParams({
+          limit: state.limit,
+          offset: state.offset,
+          search: state.search,
+        });
+        const j = await api("/db/mysql/table/" + name + "/rows?" + params);
+        if (!j.success) {
+          el("table-area").innerHTML =
+            `<div class="err-state" style="margin:20px;">${esc(j.error)}</div>`;
+          return;
+        }
+
+        state.total = j.total || 0;
+        const cols = j.columns || [];
+        if (!cols.length) {
+          el("table-area").innerHTML =
+            `<div class="empty"><div class="big">📭</div>No data.</div>`;
+          return;
+        }
+
+        el("row-count").textContent =
+          state.total.toLocaleString() +
+          " row" +
+          (state.total !== 1 ? "s" : "");
+
+        let thead =
+          `<tr><th>#</th>` +
+          cols.map((c) => `<th>${esc(c)}</th>`).join("") +
+          `<th>Actions</th></tr>`;
+        let tbody = "";
+        if (!j.rows.length) {
+          tbody = `<tr><td colspan="${cols.length + 2}" class="loading-row">No rows found.</td></tr>`;
+        } else {
+          j.rows.forEach((row, i) => {
+            const pkVal = state.pkCol ? row[state.pkCol] : null;
+            const cells = cols
+              .map(
+                (c) =>
+                  `<td title="${esc(String(row[c] ?? ""))}">${formatCell(row[c], c)}</td>`,
+              )
+              .join("");
+            const acts =
+              !isView && pkVal !== null
+                ? `<td><div class="action-cell">
+            <button class="act-btn edit" onclick='openEditModal(${JSON.stringify(row)})'>✏️ Edit</button>
+            <button class="act-btn del" onclick='confirmDelete("${name}","${pkVal}")'>🗑️ Del</button>
+          </div></td>`
+                : `<td><span style="color:var(--muted);font-size:11px;">—</span></td>`;
+            tbody += `<tr><td style="color:var(--muted);font-size:11px;">${state.offset + i + 1}</td>${cells}${acts}</tr>`;
+          });
+        }
+
+        el("table-area").innerHTML =
+          `<table class="data-table"><thead>${thead}</thead><tbody>${tbody}</tbody></table>`;
+
+        // Pagination
+        const totalPages = Math.ceil(state.total / state.limit);
+        const curPage = Math.floor(state.offset / state.limit) + 1;
+        el("pagination").innerHTML = `
+    <button class="pg-btn" onclick="loadMysqlTable('${name}',0)" ${curPage === 1 ? "disabled" : ""}>«</button>
+    <button class="pg-btn" onclick="loadMysqlTable('${name}',${Math.max(0, state.offset - state.limit)})" ${curPage === 1 ? "disabled" : ""}>‹</button>
+    <span class="pg-info">Page ${curPage} of ${totalPages || 1}</span>
+    <button class="pg-btn" onclick="loadMysqlTable('${name}',${state.offset + state.limit})" ${curPage >= totalPages ? "disabled" : ""}>›</button>
+    <button class="pg-btn" onclick="loadMysqlTable('${name}',${(totalPages - 1) * state.limit})" ${curPage >= totalPages ? "disabled" : ""}>»</button>
+    <span class="pg-info" style="margin-left:auto;">Rows per page: 
+      <select class="tb-input" style="padding:2px 6px;width:70px;" onchange="state.limit=parseInt(this.value);loadMysqlTable('${name}',0)">
+        ${[25, 50, 100, 200].map((n) => `<option value="${n}"${n === state.limit ? " selected" : ""}>${n}</option>`).join("")}
+      </select>
+    </span>`;
+
+        // Highlight active sidebar
+        loadSidebar();
+      }
+
+      // ── MongoDB Collection Loader ────────────────────────────────
+      async function loadMongoCollection(name, offset) {
+        state.target = name;
+        state.offset = offset ?? 0;
+
+        el("content-area").innerHTML = `
+    <div class="content-header">
+      <h2>${esc(name)}</h2>
+      <span class="db-tag tag-mongo">MongoDB · group19_mongo</span>
+    </div>
+    <div class="toolbar">
+      <input class="tb-input" style="width:220px" placeholder="Search notes/description…" id="search-input" value="${esc(state.search)}"
+             onkeydown="if(event.key==='Enter'){state.search=this.value;loadMongoCollection('${name}',0);}">
+      <button class="tb-btn" onclick="state.search=el('search-input').value;loadMongoCollection('${name}',0)">Search</button>
+      <button class="tb-btn" onclick="state.search='';el('search-input').value='';loadMongoCollection('${name}',0)">Clear</button>
+      <div class="tb-spacer"></div>
+      <span class="tb-count" id="row-count">Loading…</span>
+    </div>
+    <div class="table-area" id="table-area"></div>
+    <div class="pagination" id="pagination"></div>`;
+
+        const params = new URLSearchParams({
+          limit: Math.min(state.limit, 50),
+          offset: state.offset,
+          search: state.search,
+        });
+        const j = await api("/db/mongo/collection/" + name + "/docs?" + params);
+        if (!j.success) {
+          el("table-area").innerHTML =
+            `<div class="err-state" style="margin:20px;">${esc(j.error)}</div>`;
+          return;
+        }
+
+        state.total = j.total;
+        el("row-count").textContent =
+          state.total.toLocaleString() +
+          " document" +
+          (state.total !== 1 ? "s" : "");
+
+        if (!j.documents.length) {
+          el("table-area").innerHTML =
+            `<div class="empty"><div class="big">📭</div>No documents found.</div>`;
+          return;
+        }
+
+        // Build column set from first 5 docs
+        const allKeys = new Set(["_id"]);
+        j.documents
+          .slice(0, 5)
+          .forEach((d) => Object.keys(d).forEach((k) => allKeys.add(k)));
+        const cols = [...allKeys].slice(0, 10);
+
+        let thead =
+          `<tr><th>#</th>` +
+          cols.map((c) => `<th>${esc(c)}</th>`).join("") +
+          `<th>Actions</th></tr>`;
+        let tbody = "";
+        j.documents.forEach((doc, i) => {
+          const id = doc._id?.toString() || "";
+          const cells = cols
+            .map((c) => {
+              const v = doc[c];
+              if (v === undefined)
+                return `<td><span class="null-val">—</span></td>`;
+              if (typeof v === "object" && v !== null) {
+                const s = JSON.stringify(v).substring(0, 60);
+                return `<td><span class="long-val" onclick="showValue('${esc(c)}', ${JSON.stringify(v)})">${esc(s)}…</span></td>`;
+              }
+              return `<td>${formatCell(v, c)}</td>`;
+            })
+            .join("");
+          tbody += `<tr><td style="color:var(--muted);font-size:11px;">${state.offset + i + 1}</td>${cells}
+      <td><div class="action-cell">
+        <button class="act-btn edit" onclick='openMongoEditModal("${name}","${id}",${JSON.stringify(doc).replace(/'/g, "&#39;")})'>👁️ View/Edit</button>
+        <button class="act-btn del" onclick='confirmMongoDelete("${name}","${id}")'>🗑️</button>
+      </div></td></tr>`;
+        });
+
+        el("table-area").innerHTML =
+          `<table class="data-table"><thead>${thead}</thead><tbody>${tbody}</tbody></table>`;
+
+        const totalPages = Math.ceil(state.total / Math.min(state.limit, 50));
+        const curPage =
+          Math.floor(state.offset / Math.min(state.limit, 50)) + 1;
+        const lim = Math.min(state.limit, 50);
+        el("pagination").innerHTML = `
+    <button class="pg-btn" onclick="loadMongoCollection('${name}',0)" ${curPage === 1 ? "disabled" : ""}>«</button>
+    <button class="pg-btn" onclick="loadMongoCollection('${name}',${Math.max(0, state.offset - lim)})" ${curPage === 1 ? "disabled" : ""}>‹</button>
+    <span class="pg-info">Page ${curPage} of ${totalPages || 1}</span>
+    <button class="pg-btn" onclick="loadMongoCollection('${name}',${state.offset + lim})" ${curPage >= totalPages ? "disabled" : ""}>›</button>
+    <button class="pg-btn" onclick="loadMongoCollection('${name}',${(totalPages - 1) * lim})" ${curPage >= totalPages ? "disabled" : ""}>»</button>`;
+      }
+
+      // ── Neo4j Node Browser ───────────────────────────────────────
+      async function loadNeo4jLabel(label, offset) {
+        state.target = label;
+        state.offset = offset ?? 0;
+
+        el("content-area").innerHTML = `
+    <div class="content-header">
+      <h2>${esc(label)} Nodes</h2>
+      <span class="db-tag tag-neo4j">Neo4j Graph</span>
+    </div>
+    <div class="toolbar">
+      <span style="color:var(--muted);font-size:12px;">Showing first ${state.limit} nodes of label <b>${esc(label)}</b></span>
+      <div class="tb-spacer"></div>
+      <span class="tb-count" id="row-count">Loading…</span>
+    </div>
+    <div class="nodes-grid" id="nodes-area"></div>
+    <div class="pagination" id="pagination"></div>`;
+
+        const params = new URLSearchParams({
+          label,
+          limit: state.limit,
+          offset: state.offset,
+        });
+        const j = await api("/db/neo4j/nodes?" + params);
+        if (!j.success) {
+          el("nodes-area").innerHTML =
+            `<div class="err-state">${esc(j.error)}</div>`;
+          return;
+        }
+
+        const total =
+          (j.labels.find((l) => l.label === label) || {}).count ||
+          j.nodes.length;
+        el("row-count").textContent =
+          total + " node" + (total !== 1 ? "s" : "");
+
+        if (!j.nodes.length) {
+          el("nodes-area").innerHTML =
+            `<div class="empty" style="flex:1;"><div class="big">🔵</div>No nodes found for label ${esc(label)}.</div>`;
+          return;
+        }
+
+        el("nodes-area").innerHTML = j.nodes
+          .map((node) => {
+            const labels = (node._labels || []).join(", ") || label;
+            const props = Object.entries(node)
+              .filter(([k]) => k !== "_labels")
+              .slice(0, 8);
+            return `<div class="node-card">
+      <div class="n-label">${esc(labels)}</div>
+      ${props.map(([k, v]) => `<div class="node-prop"><span class="pk">${esc(k)}:</span><span class="pv" title="${esc(String(v ?? ""))}">${esc(String(v ?? "").substring(0, 30))}</span></div>`).join("")}
+    </div>`;
+          })
+          .join("");
+
+        const totalPages = Math.ceil(total / state.limit);
+        const curPage = Math.floor(state.offset / state.limit) + 1;
+        el("pagination").innerHTML = `
+    <button class="pg-btn" onclick="loadNeo4jLabel('${label}',0)" ${curPage === 1 ? "disabled" : ""}>«</button>
+    <button class="pg-btn" onclick="loadNeo4jLabel('${label}',${Math.max(0, state.offset - state.limit)})" ${curPage === 1 ? "disabled" : ""}>‹</button>
+    <span class="pg-info">Page ${curPage} of ${totalPages || 1}</span>
+    <button class="pg-btn" onclick="loadNeo4jLabel('${label}',${state.offset + state.limit})" ${curPage >= totalPages ? "disabled" : ""}>›</button>
+    <button class="pg-btn" onclick="loadNeo4jLabel('${label}',${(totalPages - 1) * state.limit})" ${curPage >= totalPages ? "disabled" : ""}>»</button>`;
+      }
+
+      // ── Query Console ────────────────────────────────────────────
+      function openQueryConsole(type) {
+        state.target = "__query__";
+        const labels = {
+          mysql: [
+            "MySQL SQL Console",
+            "SELECT statements, CALL procedures, SHOW, DESCRIBE",
+            "SELECT * FROM assets LIMIT 10;",
+            "Run SQL",
+          ],
+          mongo: [
+            "MongoDB Query Console",
+            "Read-only aggregation and find queries as JSON filter",
+            '{ "is_anomaly": true }',
+            "Run Query (JSON filter)",
+          ],
+          neo4j: [
+            "Cypher Query Console",
+            "Read-only MATCH queries",
+            "MATCH (a:Asset) WHERE a.condition_rating <= 5 RETURN a.asset_code, a.name, a.condition_rating ORDER BY a.condition_rating",
+            "Run Cypher",
+          ],
+        };
+        const [title, hint, placeholder, btnLabel] =
+          labels[type] || labels.mysql;
+
+        el("content-area").innerHTML = `
+    <div class="content-header"><h2>${esc(title)}</h2><span class="db-tag tag-${type}">${type === "mysql" ? "MySQL" : type === "mongo" ? "MongoDB" : "Neo4j"}</span></div>
+    <div class="query-console">
+      <div class="query-editor-wrap">
+        <div style="font-size:11px;color:var(--muted);margin-bottom:8px;">💡 ${esc(hint)}</div>
+        <textarea class="query-editor" id="query-input" placeholder="${esc(placeholder)}"></textarea>
+        <div style="display:flex;gap:8px;margin-top:8px;">
+          <button class="tb-btn primary" onclick="runQuery('${type}')">${esc(btnLabel)}</button>
+          <button class="tb-btn" onclick="el('query-input').value='';el('query-results').innerHTML=''">Clear</button>
+          <span class="tb-count" id="query-meta" style="line-height:32px;"></span>
+        </div>
+      </div>
+      <div class="query-results" id="query-results">
+        <div class="empty" style="padding:40px 0;"><div class="big">⌨️</div>Enter a query and press Run.</div>
+      </div>
+    </div>`;
+      }
+
+      async function runQuery(type) {
+        const input = (el("query-input")?.value || "").trim();
+        if (!input) return;
+        el("query-meta").innerHTML =
+          `<div class="spinner" style="display:inline-block"></div> Running…`;
+        el("query-results").innerHTML = "";
+
+        let j;
+        if (type === "mysql") {
+          j = await api("/db/mysql/query", {
+            method: "POST",
+            body: JSON.stringify({ sql: input }),
+          });
+        } else if (type === "mongo") {
+          // Try to parse as JSON filter, fallback to text search
+          let filter = {};
+          try {
+            filter = JSON.parse(input);
+          } catch {
+            filter = {};
+          }
+          // Use the status endpoint to grab current target — for simplicity just run it as a note search
+          el("query-meta").textContent =
+            "MongoDB: use the sidebar collection browser for filtering. Paste a JSON filter below and select a collection first.";
+          el("query-results").innerHTML =
+            `<div class="err-state">To query MongoDB, select a collection from the sidebar and use the search bar. For complex aggregations, use mongosh.</div>`;
+          return;
+        } else {
+          j = await api("/db/neo4j/query", {
+            method: "POST",
+            body: JSON.stringify({ cypher: input }),
+          });
+        }
+
+        el("query-meta").textContent = j.success
+          ? `${j.row_count} row(s) · ${j.execution_ms}ms`
+          : "Error";
+
+        if (!j.success) {
+          el("query-results").innerHTML =
+            `<div class="err-state">${esc(j.error)}</div>`;
+          return;
+        }
+
+        if (!j.rows || !j.rows.length) {
+          el("query-results").innerHTML =
+            `<div class="empty" style="padding:40px 0;">Query returned no rows.</div>`;
+          return;
+        }
+
+        const cols = j.columns || Object.keys(j.rows[0]);
+        let html = `<table class="data-table"><thead><tr>${cols.map((c) => `<th>${esc(c)}</th>`).join("")}</tr></thead><tbody>`;
+        j.rows.forEach((row) => {
+          html += `<tr>${cols
+            .map((c) => {
+              const v = row[c];
+              if (v === null || v === undefined)
+                return `<td><span class="null-val">NULL</span></td>`;
+              const s =
+                typeof v === "object"
+                  ? JSON.stringify(v).substring(0, 80)
+                  : String(v).substring(0, 200);
+              return `<td>${esc(s)}</td>`;
+            })
+            .join("")}</tr>`;
+        });
+        html += `</tbody></table>`;
+        el("query-results").innerHTML = html;
+      }
+
+      // ── Edit Modal (MySQL) ───────────────────────────────────────
+      function openInsertModal() {
+        state.modalMode = "insert";
+        state.modalData = {};
+        el("modal-title").textContent = "Insert Row — " + state.target;
+        el("modal-save-btn").textContent = "Insert";
+
+        const cols = state.columns;
+        el("modal-body").innerHTML = cols
+          .map((c) => {
+            const isPk =
+              c.COLUMN_KEY === "PRI" && c.EXTRA.includes("auto_increment");
+            const isFk = c.COLUMN_KEY === "MUL";
+            if (isPk) return "";
+            return `<div class="form-row">
+      <div class="form-label">${esc(c.COLUMN_NAME)} ${isFk ? `<span class="fk">FK</span>` : ""}
+        <span style="color:var(--muted);font-size:10px;margin-left:4px;">${esc(c.COLUMN_TYPE)}</span>
+      </div>
+      <input class="form-input" type="text" name="${esc(c.COLUMN_NAME)}"
+             placeholder="${esc(c.IS_NULLABLE === "YES" ? "NULL — optional" : c.COLUMN_DEFAULT || "")}"
+             ${c.IS_NULLABLE === "NO" && !isPk ? "required" : ""}>
+    </div>`;
+          })
+          .join("");
+
+        el("edit-modal").classList.add("open");
+      }
+
+      function openEditModal(row) {
+        state.modalMode = "edit";
+        state.modalData = row;
+        el("modal-title").textContent = "Edit Row — " + state.target;
+        el("modal-save-btn").textContent = "Save Changes";
+
+        const cols = state.columns;
+        el("modal-body").innerHTML = cols
+          .map((c) => {
+            const isPk = c.COLUMN_KEY === "PRI";
+            const val =
+              row[c.COLUMN_NAME] !== null && row[c.COLUMN_NAME] !== undefined
+                ? String(row[c.COLUMN_NAME])
+                : "";
+            return `<div class="form-row">
+      <div class="form-label">${esc(c.COLUMN_NAME)} ${isPk ? `<span class="pk">PK</span>` : ""}
+        <span style="color:var(--muted);font-size:10px;margin-left:4px;">${esc(c.COLUMN_TYPE)}</span>
+      </div>
+      <input class="form-input" type="text" name="${esc(c.COLUMN_NAME)}"
+             value="${esc(val)}" ${isPk ? "readonly" : ""}>
+    </div>`;
+          })
+          .join("");
+
+        el("edit-modal").classList.add("open");
+      }
+
+      async function saveModal() {
+        const inputs = el("modal-body").querySelectorAll("input");
+        const data = {};
+        inputs.forEach((i) => {
+          data[i.name] = i.value;
+        });
+
+        el("modal-save-btn").disabled = true;
+        el("modal-save-btn").textContent = "Saving…";
+
+        let j;
+        if (state.modalMode === "insert") {
+          j = await api("/db/mysql/table/" + state.target + "/rows", {
+            method: "POST",
+            body: JSON.stringify(data),
+          });
+        } else {
+          const pkVal = state.modalData[state.pkCol];
+          j = await api("/db/mysql/table/" + state.target + "/rows/" + pkVal, {
+            method: "PUT",
+            body: JSON.stringify(data),
+          });
+        }
+
+        el("modal-save-btn").disabled = false;
+        el("modal-save-btn").textContent =
+          state.modalMode === "insert" ? "Insert" : "Save Changes";
+
+        if (j.success) {
+          closeModal();
+          loadMysqlTable(state.target, state.offset);
+        } else {
+          const errDiv = document.createElement("div");
+          errDiv.className = "err-state";
+          errDiv.style.marginTop = "12px";
+          errDiv.textContent = j.error || "Save failed.";
+          el("modal-body").appendChild(errDiv);
+        }
+      }
+
+      function openMongoEditModal(collection, id, doc) {
+        state.modalMode = "mongo-edit";
+        state.modalData = { collection, id };
+        el("modal-title").textContent = "Document — " + collection;
+        el("modal-save-btn").textContent = "Save Changes";
+
+        const pretty = JSON.stringify(doc, null, 2);
+        el("modal-body").innerHTML = `
+    <div style="font-size:11px;color:var(--muted);margin-bottom:8px;">Editing document <code style="color:var(--accent)">${esc(id)}</code>. Edit JSON below. _id cannot be changed.</div>
+    <textarea class="query-editor" id="mongo-edit-json" style="height:300px;">${esc(pretty)}</textarea>`;
+        el("edit-modal").classList.add("open");
+      }
+
+      const origSaveModal = saveModal;
+      async function saveModal() {
+        if (state.modalMode === "mongo-edit") {
+          const raw = el("mongo-edit-json")?.value;
+          let parsed;
+          try {
+            parsed = JSON.parse(raw);
+          } catch (e) {
+            alert("Invalid JSON: " + e.message);
+            return;
+          }
+          el("modal-save-btn").disabled = true;
+          const j = await api(
+            "/db/mongo/collection/" +
+              state.modalData.collection +
+              "/docs/" +
+              state.modalData.id,
+            { method: "PUT", body: JSON.stringify(parsed) },
+          );
+          el("modal-save-btn").disabled = false;
+          if (j.success) {
+            closeModal();
+            loadMongoCollection(state.modalData.collection, state.offset);
+          } else alert(j.error);
+          return;
+        }
+        await origSaveModal();
+      }
+
+      function closeModal() {
+        el("edit-modal").classList.remove("open");
+      }
+
+      // ── Delete confirm ───────────────────────────────────────────
+      function confirmDelete(table, pkVal) {
+        el("confirm-title").textContent = "Delete Row";
+        el("confirm-msg").textContent =
+          "Are you sure you want to delete or archive this record?";
+        el("confirm-warn").textContent =
+          "Protected tables (assets, staff, parts) will be soft-deleted (archived). The audit table cannot be deleted.";
+        el("confirm-ok-btn").onclick = async () => {
+          closeConfirm();
+          const j = await api("/db/mysql/table/" + table + "/rows/" + pkVal, {
+            method: "DELETE",
+          });
+          if (j.success) loadMysqlTable(table, state.offset);
+          else alert(j.error);
+        };
+        el("confirm-modal").classList.add("open");
+      }
+
+      function confirmMongoDelete(collection, id) {
+        el("confirm-title").textContent = "Delete Document";
+        el("confirm-msg").textContent =
+          "Delete document " + id + " from " + collection + "?";
+        el("confirm-warn").textContent =
+          "If the document has an is_deleted field it will be soft-deleted. Otherwise it is permanently removed.";
+        el("confirm-ok-btn").onclick = async () => {
+          closeConfirm();
+          const j = await api(
+            "/db/mongo/collection/" + collection + "/docs/" + id,
+            { method: "DELETE" },
+          );
+          if (j.success) loadMongoCollection(collection, state.offset);
+          else alert(j.error);
+        };
+        el("confirm-modal").classList.add("open");
+      }
+
+      function closeConfirm() {
+        el("confirm-modal").classList.remove("open");
+      }
+
+      // ── Init ─────────────────────────────────────────────────────
+      window.addEventListener("load", async () => {
+        await checkConnections();
+        loadSidebar();
+      });
+      setInterval(checkConnections, 15000);
+    </script>
+  </body>
+</html>

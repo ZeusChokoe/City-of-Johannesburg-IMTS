@@ -1,0 +1,440 @@
+  ================================================================================
+    GROUP 19 JHB Infrastructure Maintenance Tracking System
+    COMPLETE SETUP AND CONNECTION GUIDE
+    Read this entire file before running anything.
+  ================================================================================
+
+  PROJECT NAME:  group19 (MySQL) · group19_mongo (MongoDB)
+  NODE VERSION:  18+ required  (check: node --version)
+  API PORT:      3000
+
+  ================================================================================
+  FOLDER STRUCTURE — WHAT YOU HAVE
+  ================================================================================
+
+  group19_imts/
+  ├── HOW_TO_CONNECT.txt                     ← You are here
+  │
+  ├── phase1_mysql/
+  │     └── group19_schema.sql               ← Run FIRST in MySQL / phpMyAdmin
+  │
+  ├── phase2_mysql_logic/
+  │     └── group19_logic.sql                ← Run SECOND in MySQL / phpMyAdmin
+  │
+  ├── phase3_mongodb/
+  │     └── group19_mongodb.js               ← Run in mongosh terminal
+  │
+  ├── phase4_neo4j/
+  │     └── group19_neo4j.cypher             ← Paste sections in Neo4j Browser
+  │
+  ├── phase5_api/                            ← REST API (Node.js / Express)
+  │     ├── server.js                        ← Entry point: node server.js
+  │     ├── package.json
+  │     ├── .env.example                     ← Copy to .env and set passwords
+  │     ├── config/db.js                     ← DB connection managers
+  │     ├── middleware/index.js
+  │     ├── routes/index.js                  ← All API routes + DB manager routes
+  │     └── controllers/
+  │           ├── requestController.js
+  │           ├── statusController.js
+  │           └── dbManagerController.js     ← Powers the HTML DB manager
+  │
+  ├── phase6_access_diagrams/
+  │     ├── group19_phpmyadmin_access.sql    ← MySQL user/privilege setup
+  │     └── GROUP19_GA9_Reflection.md        ← GA9 Independent Learning document
+  │
+  ├── phase7_diagrams/
+  │     ├── group19_dataflow.drawio          ← Open in diagrams.net
+  │     └── group19_er_diagram.drawio        ← Open in diagrams.net
+  │
+  ├── dashboard/
+  │     ├── index.html                       ← Live connection dashboard
+  │     └── db_manager.html                  ← Full database browser & editor
+  │
+  └── connection_test/
+        ├── package.json
+        ├── .env                             ← Edit Neo4j password here
+        └── test_connections.js              ← Run to verify all 3 DBs
+
+  ================================================================================
+  STEP 1 — XAMPP: Start MySQL
+  ================================================================================
+
+  1. Open XAMPP Control Panel
+  2. Click START next to MySQL
+  3. Click START next to Apache (needed for phpMyAdmin)
+  4. Confirm both show green "Running" status
+  5. Open http://localhost/phpmyadmin in your browser
+
+  LOAD PHASE 1 — Database Schema:
+    phpMyAdmin → left sidebar → click the "Import" tab (top menu)
+    → Choose File → select:  phase1_mysql/group19_schema.sql
+    → Click Go
+
+    You should see "group19" appear in the left sidebar with 11 tables:
+    assets, asset_types, districts, inspections, maintenance_requests,
+    parts_inventory, parts_usage, request_status_history, staff,
+    work_order_assignments, work_orders
+
+  LOAD PHASE 2 — Business Logic (Triggers, Procedures, Events, Functions):
+    IMPORTANT: Do NOT use the SQL tab for this file.
+    Use: phpMyAdmin → select "group19" database → Import tab
+    → Choose File → select: phase2_mysql_logic/group19_logic.sql
+    → In the "Format" section, ensure delimiter is set to ;
+    → Click Go
+
+    Verify: click on the "group19" database → Routines tab
+    You should see 5 functions + 6 stored procedures listed.
+
+    Alternative (MySQL Workbench — recommended for Phase 2):
+    File → Open SQL Script → select group19_logic.sql → Execute All (lightning bolt)
+
+  MySQL connection details:
+    Host:     127.0.0.1
+    Port:     3306
+    User:     root
+    Password: (blank — XAMPP default)
+    Database: group19
+
+  ================================================================================
+  STEP 2 — MongoDB: Start Service
+  ================================================================================
+
+  CHECK IF RUNNING:
+    Open a terminal and type:  mongosh
+    If you get the mongosh prompt → MongoDB is running (type exit to leave)
+    If you get "command not found" or connection error → see fixes below
+
+  START MONGODB:
+    Windows:   Open Command Prompt as Admin → net start MongoDB
+    Windows:   OR open Services (Win+R → services.msc) → find MongoDB → Start
+    macOS:     brew services start mongodb-community
+    Linux:     sudo systemctl start mongod
+
+  LOAD PHASE 3 — Collections, Indexes, Seed Data:
+    Open a terminal in the group19_imts/ folder and run:
+    
+      mongosh --file phase3_mongodb/group19_mongodb.js
+
+    This creates:
+      - Database: group19_mongo
+      - 5 collections with JSON Schema validation
+      - All indexes (TTL, geospatial, compound)
+      - Realistic seed documents
+
+  VERIFY in mongosh:
+      use group19_mongo
+      show collections
+      db.maintenance_logs.countDocuments()      // should return 6
+      db.sensor_readings.countDocuments()       // should return 30
+
+  VERIFY in MongoDB Compass (GUI):
+    Open Compass → Connect to mongodb://localhost:27017
+    → Select group19_mongo database → browse collections
+
+  MongoDB connection details:
+    URI:      mongodb://127.0.0.1:27017
+    Database: group19_mongo
+    Auth:     none (local Community Edition)
+
+  ================================================================================
+  STEP 3 Neo4j: Start Database
+  ================================================================================
+
+  1. Open Neo4j Desktop application
+  2. In your project, click START on your database
+    (If you have no database yet: New → Local DBMS → name it "group19" → set a password → Create → Start)
+  3. Click Open → Neo4j Browser
+    The browser opens at http://localhost:7474
+
+  WRITE DOWN YOUR PASSWORD you need it for .env files.
+
+  LOAD PHASE 4 Nodes, Relationships, Cypher Queries:
+    Open phase4_neo4j/group19_neo4j.cypher in a text editor.
+    Copy and paste each SECTION separately into Neo4j Browser.
+    Press Ctrl+Enter (or the ▶ play button) after each section.
+
+    SECTION ORDER do not skip, do not change order:
+      Section 1: Constraints and Indexes     (CREATE CONSTRAINT... blocks)
+      Section 2: Node Creation               (MERGE (d1:District...) blocks)
+      Section 3: Relationship Creation       (MATCH...MERGE relationship blocks)
+      Section 4: Cypher Query Library        (MATCH queries run to verify)
+      Section 5: Verification                (MATCH (n) RETURN labels(n)...)
+
+  VERIFY in Neo4j Browser:
+      MATCH (n) RETURN labels(n)[0] AS label, count(n) AS count ORDER BY count DESC
+      Should show: Asset(18), Technician(7), District(7), AssetType(10)...
+
+  Neo4j connection details:
+    Browser:  http://localhost:7474
+    Bolt URI: bolt://127.0.0.1:7687
+    User:     neo4j
+    Password: (the one you set in Neo4j Desktop)
+
+  ================================================================================
+  STEP 4 Run the Connection Test
+  ================================================================================
+
+  1. Open connection_test/.env and set your Neo4j password:
+    NEO4J_PASSWORD=your_password_here
+
+  2. Open a terminal in connection_test/ and run:
+      npm install
+      node test_connections.js
+
+  EXPECTED OUTPUT all green ticks:
+    ✓ MySQL server reachable
+    ✓ Database 'group19' EXISTS
+    ✓ All 11 tables present
+    ✓ Functions: 5  Procedures: 6  Triggers: 8  Events: 4
+    ✓ Seed data OK
+    ✓ MongoDB server reachable
+    ✓ All 5 collections found
+    ✓ Neo4j server reachable
+    ✓ Graph populated 6 node label(s)
+
+  If any item shows ✗ or ⚠ the test tells you exactly which file to run.
+
+  ================================================================================
+  STEP 5 Start the REST API
+  ================================================================================
+
+  1. Open a terminal in phase5_api/ and run:
+      npm install
+
+  2. Copy the environment file:
+    Windows:      copy .env.example .env
+    macOS/Linux:  cp .env.example .env
+
+  3. Open .env and set:
+      MYSQL_PASSWORD=          (leave blank for XAMPP default)
+      NEO4J_PASSWORD=          (your Neo4j password from Step 3)
+      MONGO_URI=mongodb://127.0.0.1:27017
+
+  4. Start the API:
+      node server.js
+
+  EXPECTED STARTUP OUTPUT:
+    === Group 19 City of Johannesburg IMTS API ===
+    [MySQL]   Connected -> database: group19
+    [MongoDB] Connected -> database: group19_mongo
+    [Neo4j]   Connected -> bolt://127.0.0.1:7687
+    Database status: 3/3 connected
+    API running -> http://localhost:3000/api/v1
+
+  NOTE: The API uses a PARTIAL START approach if one database is down it
+  still starts and serves the other databases. Broken endpoints show a clear
+  error message rather than crashing the whole server.
+
+  ================================================================================
+  STEP 6 Open the Dashboard and Database Manager
+  ================================================================================
+
+  DASHBOARD (connection status + live data):
+    Open dashboard/index.html directly in your browser.
+    Double-click the file OR drag it into Chrome/Edge/Firefox.
+    The dashboard auto-refreshes every 30 seconds.
+    Click the "Database Manager" button to open the DB manager.
+
+  DATABASE MANAGER (browse, edit, insert, delete):
+    Open dashboard/db_manager.html directly in your browser.
+    The manager connects to the API at http://localhost:3000
+
+    Features:
+    ┌──────────────────────────────────────────────────────────┐
+    │ MySQL Tab                                                │
+    │   • Browse all 11 tables + 5 views                       │
+    │   • Paginated rows with search                           │
+    │   • Insert new rows via form                             │
+    │   • Edit existing rows inline                            │
+    │   • Delete / soft-delete (assets are archived not deleted)│
+    │   • SQL query console (SELECT, SHOW, DESCRIBE, CALL)     │
+    ├──────────────────────────────────────────────────────────┤
+    │ MongoDB Tab                                              │
+    │   • Browse all 5 collections with document counts        │
+    │   • Paginated document viewer                            │
+    │   • Full JSON document editor                            │
+    │   • Soft/hard delete documents                           │
+    ├──────────────────────────────────────────────────────────┤
+    │ Neo4j Tab                                                │
+    │   • Browse nodes by label (Asset, District, etc.)        │
+    │   • Visual node cards showing all properties             │
+    │   • Read-only Cypher query console                       │
+    └──────────────────────────────────────────────────────────┘
+
+  ================================================================================
+  STEP 7 Test API Endpoints (optional but recommended)
+  ================================================================================
+
+  Open these in your browser or use Postman:
+
+    http://localhost:3000/api/v1/health
+      → API health check (no DB needed)
+
+    http://localhost:3000/api/v1/health/deep
+      → Tests all 3 DB connections, returns OK/UNREACHABLE per DB
+
+    http://localhost:3000/api/v1/status
+      → Full status used by the dashboard (versions, counts, stats)
+
+    http://localhost:3000/api/v1/requests
+      → All open maintenance requests from MySQL
+
+    http://localhost:3000/api/v1/requests/1
+      → Request #1 merged from MySQL + MongoDB logs + Neo4j neighbours
+
+    http://localhost:3000/api/v1/requests/1/impact
+      → Neo4j failure cascade: what else breaks if this asset fails
+
+    http://localhost:3000/api/v1/assets/1
+      → Asset #1 merged from MySQL + MongoDB sensors + Neo4j network
+
+    http://localhost:3000/api/v1/reports/district/1
+      → District 1 report: cursor-based procedure + MongoDB log count
+
+    http://localhost:3000/api/v1/reports/asset-conditions
+      → All districts with avg condition ratings
+
+    http://localhost:3000/api/v1/reports/sla-breaches
+      → All currently breached SLA work orders
+
+    http://localhost:3000/api/v1/reports/stock-alerts
+      → Parts at or below reorder level
+
+  DATABASE MANAGER API (called by the HTML manager do not call manually):
+    GET  /api/v1/db/mysql/tables
+    GET  /api/v1/db/mysql/table/:name/rows
+    POST /api/v1/db/mysql/table/:name/rows
+    PUT  /api/v1/db/mysql/table/:name/rows/:id
+    DELETE /api/v1/db/mysql/table/:name/rows/:id
+    POST /api/v1/db/mysql/query
+    GET  /api/v1/db/mongo/collections
+    GET  /api/v1/db/mongo/collection/:name/docs
+    PUT  /api/v1/db/mongo/collection/:name/docs/:id
+    GET  /api/v1/db/neo4j/nodes
+    POST /api/v1/db/neo4j/query
+
+  ================================================================================
+  OPEN THE DIAGRAMS
+  ================================================================================
+
+  ER Diagram:
+    File:  phase7_diagrams/group19_er_diagram.drawio
+    Open:  https://app.diagrams.net → File → Open → select the file
+    OR:    Open Draw.io desktop app → File → Open
+
+  Data Flow Diagram:
+    File:  phase7_diagrams/group19_dataflow.drawio
+    Same method as above.
+
+  ================================================================================
+  QUICK REFERENCE PORTS AND URLS
+  ================================================================================
+
+  Service              Port    URL / Connection
+  ─────────────────────────────────────────────────────────────
+  XAMPP Apache         80      http://localhost
+  XAMPP phpMyAdmin     80      http://localhost/phpmyadmin
+  XAMPP MySQL          3306    root @ 127.0.0.1:3306 / group19
+  MongoDB              27017   mongodb://127.0.0.1:27017/group19_mongo
+  Neo4j Browser        7474    http://localhost:7474
+  Neo4j Bolt           7687    bolt://127.0.0.1:7687
+  Group 19 IMTS API    3000    http://localhost:3000/api/v1
+  Dashboard            —       open dashboard/index.html in browser
+  DB Manager           —       open dashboard/db_manager.html in browser
+
+  ================================================================================
+  TROUBLESHOOTING
+  ================================================================================
+
+  Problem: phpMyAdmin gives error 1064 on Phase 2 SQL
+  Fix:     Use the IMPORT tab (not SQL tab). The file uses DELIMITER $$
+          which the SQL tab does not handle. The Import tab does.
+          Better: use MySQL Workbench it handles DELIMITER natively.
+
+  Problem: Phase 2 events give "Event scheduler is off" warning
+  Fix:     Run this in phpMyAdmin SQL tab:
+            SET GLOBAL event_scheduler = ON;
+          Then re-run the Phase 2 import.
+
+  Problem: mongosh: command not found
+  Fix:     MongoDB Shell is separate from MongoDB Server.
+          Download mongosh from: https://www.mongodb.com/try/download/shell
+          Or use full path: "C:\Program Files\MongoDB\Tools\100\bin\mongosh.exe"
+
+  Problem: MongoDB validation error when running Phase 3
+  Fix:     Drop the database first if it exists from a partial run:
+            mongosh → use group19_mongo → db.dropDatabase()
+          Then re-run the Phase 3 script.
+
+  Problem: Neo4j "Already exists" on constraints
+  Fix:     Safe to ignore IF NOT EXISTS prevents duplicates.
+          Continue to the next section.
+
+  Problem: API starts but /health/deep shows Neo4j UNREACHABLE
+  Fix:     Check NEO4J_PASSWORD in phase5_api/.env matches the password
+          set in Neo4j Desktop exactly (case-sensitive).
+
+  Problem: DB Manager shows "API server not reachable"
+  Fix:     The API must be running first. Open a terminal in phase5_api/
+          and run: node server.js
+          Keep that terminal open while using the dashboard.
+
+  Problem: DB Manager edit saves but data does not change
+  Fix:     Some columns (created_at, updated_at) are auto-managed by
+          MySQL triggers. Changes to those fields are intentionally
+          blocked by the trigger this is correct behaviour.
+
+  Problem: Cannot delete from request_status_history
+  Fix:     This is intentional. The audit table is immutable by design.
+          See GA9 Reflection document for the reasoning.
+
+  ================================================================================
+  WHAT EACH PHASE DELIVERED
+  ================================================================================
+
+  Phase 1 MySQL Schema
+    11 tables, all FK constraints, targeted indexes, realistic CoJ seed data
+    for all 7 Johannesburg districts with real asset types and staff records.
+
+  Phase 2 MySQL Business Logic
+    5 scalar functions, 8 triggers, 6 stored procedures (3 cursor-based),
+    4 scheduled events, 5 views. All business rules enforced at DB layer.
+
+  Phase 3 MongoDB
+    5 collections with $jsonSchema validation, TTL indexes, geospatial
+    2dsphere indexes, 30 sensor readings, 6 maintenance logs, aggregation
+    pipelines for anomaly detection, checklist analysis, and geospatial
+    fault clustering.
+
+  Phase 4 Neo4j
+    7 node labels, 9 relationship types, 18 asset nodes (including extended
+    water pipe network topology), 60+ relationships. 8 Cypher queries:
+    failure cascade analysis, shortest path routing, electrical dependency
+    impact, district risk scoring, technician workload matching.
+
+  Phase 5 REST API
+    Node.js/Express with 3 DB connections, 12 operational endpoints,
+    15 database manager endpoints, full validation, rate limiting,
+    partial-start resilience, graceful SIGTERM shutdown.
+
+  Phase 6 Access Control & Documentation
+    4 MySQL role-based users (api, dba, analyst, supervisor) with PoLP
+    privileges, column-level POPIA compliance restrictions, phpMyAdmin
+    security configuration.
+
+  Phase 7 Diagrams
+    2 importable Draw.io files: system data flow diagram and full ER
+    diagram with crow's foot notation and all 11 entities.
+
+  Dashboard & DB Manager
+    Live HTML dashboard: per-service connection status with colour-coded
+    indicators, live stats, open requests table, asset conditions table,
+    Neo4j node distribution, MongoDB document counts.
+    Database Manager: full CRUD on MySQL tables, document view/edit for
+    MongoDB, node browser for Neo4j, SQL and Cypher query consoles.
+
+  ================================================================================
+  END OF SETUP GUIDE
+  Group 19 City of Johannesburg IMTS
+  ================================================================================

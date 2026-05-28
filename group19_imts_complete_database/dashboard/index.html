@@ -1,0 +1,1259 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Group 19 JHB IMTS System Dashboard Powered by ZF</title>
+    <link rel="icon" href="zeus_icon_transparent.png" />
+    <style>
+      :root {
+        --bg: #0f1117;
+        --bg2: #1a1d2e;
+        --bg3: #252840;
+        --border: #2e3250;
+        --text: #e2e4f0;
+        --muted: #8b90b0;
+        --accent: #6c63ff;
+        --green: #22c55e;
+        --red: #ef4444;
+        --yellow: #f59e0b;
+        --blue: #3b82f6;
+        --mysql: #f59e0b;
+        --mongo: #22c55e;
+        --neo4j: #ef4444;
+        --api: #6c63ff;
+        --radius: 12px;
+        --shadow: 0 4px 24px rgba(0, 0, 0, 0.4);
+      }
+      * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+      body {
+        background: var(--bg);
+        color: var(--text);
+        font-family:
+          "Segoe UI",
+          system-ui,
+          -apple-system,
+          sans-serif;
+        font-size: 14px;
+        min-height: 100vh;
+      }
+
+      /* ── Top nav ── */
+      header {
+        background: var(--bg2);
+        border-bottom: 1px solid var(--border);
+        padding: 16px 32px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        position: sticky;
+        top: 0;
+        z-index: 100;
+      }
+      .brand {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+      }
+      .brand-icon {
+        width: 40px;
+        height: 40px;
+        background: var(--accent);
+        border-radius: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 20px;
+      }
+      .brand-icon img {
+        width: 100%;
+        height: 100%;
+        object-fit: contain;
+        border-radius: 8px;
+        display: block;
+      }
+      .brand-text h1 {
+        font-size: 18px;
+        font-weight: 700;
+      }
+      .brand-text p {
+        font-size: 12px;
+        color: var(--muted);
+        margin-top: 1px;
+      }
+      .header-right {
+        display: flex;
+        align-items: center;
+        gap: 16px;
+      }
+      .api-url {
+        background: var(--bg3);
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        padding: 6px 12px;
+        font-size: 12px;
+        color: var(--muted);
+      }
+      .api-url span {
+        color: var(--accent);
+      }
+      #last-checked {
+        font-size: 12px;
+        color: var(--muted);
+      }
+      .refresh-btn {
+        background: var(--accent);
+        color: #fff;
+        border: none;
+        border-radius: 8px;
+        padding: 8px 16px;
+        font-size: 13px;
+        cursor: pointer;
+        font-weight: 600;
+        transition: opacity 0.2s;
+      }
+      .refresh-btn:hover {
+        opacity: 0.85;
+      }
+      .refresh-btn:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+      }
+
+      /* ── Overall status banner ── */
+      #overall-banner {
+        margin: 24px 32px 0;
+        padding: 16px 24px;
+        border-radius: var(--radius);
+        border: 1px solid var(--border);
+        display: flex;
+        align-items: center;
+        gap: 16px;
+        font-size: 15px;
+        font-weight: 600;
+        transition:
+          background 0.4s,
+          border-color 0.4s;
+      }
+      #overall-banner.all {
+        background: rgba(34, 197, 94, 0.12);
+        border-color: var(--green);
+      }
+      #overall-banner.partial {
+        background: rgba(245, 158, 11, 0.12);
+        border-color: var(--yellow);
+      }
+      #overall-banner.none {
+        background: rgba(239, 68, 68, 0.12);
+        border-color: var(--red);
+      }
+      #overall-banner.loading {
+        background: rgba(108, 99, 255, 0.08);
+        border-color: var(--border);
+      }
+      .banner-dot {
+        width: 14px;
+        height: 14px;
+        border-radius: 50%;
+        flex-shrink: 0;
+      }
+      .dot-green {
+        background: var(--green);
+        box-shadow: 0 0 8px var(--green);
+      }
+      .dot-yellow {
+        background: var(--yellow);
+        box-shadow: 0 0 8px var(--yellow);
+      }
+      .dot-red {
+        background: var(--red);
+        box-shadow: 0 0 8px var(--red);
+      }
+      .dot-pulse {
+        background: var(--accent);
+        animation: pulse 1.2s infinite;
+      }
+      @keyframes pulse {
+        0%,
+        100% {
+          opacity: 1;
+        }
+        50% {
+          opacity: 0.3;
+        }
+      }
+
+      /* ── Main layout ── */
+      main {
+        padding: 24px 32px 48px;
+      }
+
+      /* ── Section heading ── */
+      .section-title {
+        font-size: 11px;
+        font-weight: 700;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+        color: var(--muted);
+        margin: 32px 0 16px;
+      }
+
+      /* ── DB Cards grid ── */
+      .cards-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+        gap: 20px;
+      }
+
+      .db-card {
+        background: var(--bg2);
+        border: 1px solid var(--border);
+        border-radius: var(--radius);
+        overflow: hidden;
+        box-shadow: var(--shadow);
+        transition:
+          border-color 0.3s,
+          box-shadow 0.3s;
+      }
+      .db-card.connected {
+        border-color: rgba(34, 197, 94, 0.5);
+      }
+      .db-card.disconnected {
+        border-color: rgba(239, 68, 68, 0.4);
+      }
+      .db-card.checking {
+        border-color: var(--border);
+      }
+
+      .card-header {
+        padding: 16px 20px;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        border-bottom: 1px solid var(--border);
+      }
+      .card-icon {
+        width: 36px;
+        height: 36px;
+        border-radius: 8px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 18px;
+        flex-shrink: 0;
+        overflow: hidden;
+      }
+      .card-icon img { width:20px; height:20px; display:block; }
+      .card-icon.icon-api img { filter: none; }
+      .card-icon.icon-mysql img { filter: none; }
+      .card-icon.icon-mongo img { filter: none; }
+      .card-icon.icon-neo4j img { filter: none; }
+      .icon-api {
+        background: rgba(108, 99, 255, 0.2);
+      }
+      .icon-mysql {
+        background: rgba(245, 158, 11, 0.2);
+      }
+      .icon-mongo {
+        background: rgba(34, 197, 94, 0.2);
+      }
+      .icon-neo4j {
+        background: rgba(239, 68, 68, 0.2);
+      }
+
+      .card-title {
+        flex: 1;
+      }
+      .card-title h3 {
+        font-size: 15px;
+        font-weight: 700;
+      }
+      .card-title p {
+        font-size: 11px;
+        color: var(--muted);
+        margin-top: 2px;
+      }
+
+      .status-badge {
+        padding: 4px 10px;
+        border-radius: 20px;
+        font-size: 11px;
+        font-weight: 700;
+        letter-spacing: 0.05em;
+        white-space: nowrap;
+      }
+      .badge-connected {
+        background: rgba(34, 197, 94, 0.2);
+        color: var(--green);
+      }
+      .badge-disconnected {
+        background: rgba(239, 68, 68, 0.2);
+        color: var(--red);
+      }
+      .badge-checking {
+        background: rgba(108, 99, 255, 0.15);
+        color: var(--accent);
+      }
+
+      .card-body {
+        padding: 16px 20px;
+      }
+
+      .stat-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 6px 0;
+        border-bottom: 1px solid var(--border);
+      }
+      .stat-row:last-child {
+        border-bottom: none;
+      }
+      .stat-label {
+        color: var(--muted);
+        font-size: 12px;
+      }
+      .stat-value {
+        font-size: 13px;
+        font-weight: 600;
+      }
+      .stat-value.ok {
+        color: var(--green);
+      }
+      .stat-value.warn {
+        color: var(--yellow);
+      }
+      .stat-value.err {
+        color: var(--red);
+      }
+      .stat-value.dim {
+        color: var(--muted);
+      }
+
+      .error-box {
+        background: rgba(239, 68, 68, 0.1);
+        border: 1px solid rgba(239, 68, 68, 0.3);
+        border-radius: 8px;
+        padding: 10px 14px;
+        margin-top: 8px;
+        font-size: 12px;
+      }
+      .error-box .err-title {
+        color: var(--red);
+        font-weight: 700;
+        margin-bottom: 4px;
+      }
+      .error-box .err-hint {
+        color: var(--yellow);
+        margin-top: 4px;
+      }
+
+      /* ── Stats summary row ── */
+      .summary-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+        gap: 16px;
+        margin-top: 8px;
+      }
+      .summary-card {
+        background: var(--bg2);
+        border: 1px solid var(--border);
+        border-radius: var(--radius);
+        padding: 20px;
+        text-align: center;
+      }
+      .summary-card .big-num {
+        font-size: 32px;
+        font-weight: 800;
+        line-height: 1;
+        margin-bottom: 6px;
+      }
+      .summary-card .big-label {
+        font-size: 11px;
+        color: var(--muted);
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+      }
+      .num-blue {
+        color: var(--blue);
+      }
+      .num-green {
+        color: var(--green);
+      }
+      .num-yellow {
+        color: var(--yellow);
+      }
+      .num-red {
+        color: var(--red);
+      }
+      .num-purple {
+        color: var(--accent);
+      }
+
+      /* ── Tables ── */
+      .data-section {
+        background: var(--bg2);
+        border: 1px solid var(--border);
+        border-radius: var(--radius);
+        overflow: hidden;
+        margin-top: 8px;
+      }
+      .data-section-header {
+        padding: 14px 20px;
+        border-bottom: 1px solid var(--border);
+        font-size: 13px;
+        font-weight: 700;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+      .data-table {
+        width: 100%;
+        border-collapse: collapse;
+      }
+      .data-table th {
+        text-align: left;
+        padding: 10px 20px;
+        font-size: 11px;
+        font-weight: 700;
+        color: var(--muted);
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        background: var(--bg3);
+        border-bottom: 1px solid var(--border);
+      }
+      .data-table td {
+        padding: 10px 20px;
+        font-size: 13px;
+        border-bottom: 1px solid var(--border);
+      }
+      .data-table tr:last-child td {
+        border-bottom: none;
+      }
+      .data-table tr:hover td {
+        background: rgba(255, 255, 255, 0.02);
+      }
+
+      .pill {
+        display: inline-block;
+        padding: 2px 8px;
+        border-radius: 12px;
+        font-size: 11px;
+        font-weight: 700;
+      }
+      .pill-green {
+        background: rgba(34, 197, 94, 0.15);
+        color: var(--green);
+      }
+      .pill-yellow {
+        background: rgba(245, 158, 11, 0.15);
+        color: var(--yellow);
+      }
+      .pill-red {
+        background: rgba(239, 68, 68, 0.15);
+        color: var(--red);
+      }
+      .pill-blue {
+        background: rgba(59, 130, 246, 0.15);
+        color: var(--blue);
+      }
+      .pill-purple {
+        background: rgba(108, 99, 255, 0.15);
+        color: var(--accent);
+      }
+
+      .empty-state {
+        padding: 40px;
+        text-align: center;
+        color: var(--muted);
+        font-size: 13px;
+      }
+      .spinner {
+        display: inline-block;
+        width: 16px;
+        height: 16px;
+        border: 2px solid var(--border);
+        border-top-color: var(--accent);
+        border-radius: 50%;
+        animation: spin 0.7s linear infinite;
+      }
+      @keyframes spin {
+        to {
+          transform: rotate(360deg);
+        }
+      }
+
+      /* ── Footer ── */
+      footer {
+        text-align: center;
+        padding: 24px;
+        color: var(--muted);
+        font-size: 12px;
+        border-top: 1px solid var(--border);
+      }
+
+      /* ── Setup instructions ── */
+      .setup-card {
+        background: var(--bg2);
+        border: 1px solid var(--border);
+        border-radius: var(--radius);
+        padding: 24px;
+        margin-top: 8px;
+      }
+      .setup-step {
+        display: flex;
+        gap: 16px;
+        margin-bottom: 20px;
+        align-items: flex-start;
+      }
+      .setup-step:last-child {
+        margin-bottom: 0;
+      }
+      .step-num {
+        width: 28px;
+        height: 28px;
+        border-radius: 50%;
+        background: var(--accent);
+        color: #fff;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 800;
+        font-size: 13px;
+        flex-shrink: 0;
+      }
+      .step-body h4 {
+        font-size: 14px;
+        font-weight: 700;
+        margin-bottom: 4px;
+      }
+      .step-body p {
+        font-size: 12px;
+        color: var(--muted);
+        line-height: 1.6;
+      }
+      .step-body code {
+        background: var(--bg3);
+        padding: 2px 6px;
+        border-radius: 4px;
+        font-family: "Cascadia Code", "Fira Code", Consolas, monospace;
+        font-size: 12px;
+        color: var(--accent);
+      }
+    </style>
+  </head>
+  <body>
+    <!-- ═══════════════════════════════════════════════════════════
+     HEADER
+═══════════════════════════════════════════════════════════ -->
+    <header>
+      <div class="brand">
+        <div class="brand-icon">
+          <img src="zeus_icon_transparent.png" alt="Zeus" />
+        </div>
+        <div class="brand-text">
+          <h1>Group 19 JHB IMTS</h1>
+          <p>Infrastructure Maintenance Tracking System System Dashboard</p>
+        </div>
+      </div>
+      <div class="header-right">
+        <div class="api-url">
+          API: <span id="api-url-display">http://localhost:3000/api/v1</span>
+        </div>
+        <span id="last-checked">Not checked yet</span>
+        <a
+          href="db_manager.html"
+          style="
+            padding: 8px 16px;
+            background: var(--bg3);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            color: var(--text);
+            text-decoration: none;
+            font-size: 13px;
+            font-weight: 600;
+          "
+          >🗄️ DB Manager</a
+        >
+        <button class="refresh-btn" onclick="runCheck()" id="refresh-btn">
+          ↻ Refresh
+        </button>
+      </div>
+    </header>
+
+    <!-- ═══════════════════════════════════════════════════════════
+     OVERALL BANNER
+═══════════════════════════════════════════════════════════ -->
+    <div id="overall-banner" class="loading">
+      <div class="banner-dot dot-pulse" id="banner-dot"></div>
+      <span id="banner-text">ZF Checking connections...</span>
+    </div>
+
+    <main>
+      <!-- ── DB Status Cards ── -->
+      <div class="section-title">ZF Database Connection Status</div>
+      <div class="cards-grid">
+        <!-- API card -->
+        <div class="db-card checking" id="card-api">
+          <div class="card-header">
+            <div class="card-icon icon-api">⚡</div>
+            <div class="card-title">
+              <h3>REST API</h3>
+              <p>Node.js / Express Port 3000</p>
+            </div>
+            <span class="status-badge badge-checking" id="badge-api"
+              >CHECKING</span
+            >
+          </div>
+          <div class="card-body" id="body-api">
+            <div class="stat-row">
+              <span class="stat-label">Status</span
+              ><span class="stat-value dim"><div class="spinner"></div></span>
+            </div>
+          </div>
+        </div>
+
+        <!-- MySQL card -->
+        <div class="db-card checking" id="card-mysql">
+          <div class="card-header">
+            <div class="card-icon icon-mysql">🐬</div>
+            <div class="card-title">
+              <h3>MySQL (XAMPP)</h3>
+              <p>group19 Port 3306</p>
+            </div>
+            <span class="status-badge badge-checking" id="badge-mysql"
+              >CHECKING</span
+            >
+          </div>
+          <div class="card-body" id="body-mysql">
+            <div class="stat-row">
+              <span class="stat-label">Status</span
+              ><span class="stat-value dim"><div class="spinner"></div></span>
+            </div>
+          </div>
+        </div>
+
+        <!-- MongoDB card -->
+        <div class="db-card checking" id="card-mongo">
+          <div class="card-header">
+            <div class="card-icon icon-mongo">🍃</div>
+            <div class="card-title">
+              <h3>MongoDB</h3>
+              <p>group19_mongo Port 27017</p>
+            </div>
+            <span class="status-badge badge-checking" id="badge-mongo"
+              >CHECKING</span
+            >
+          </div>
+          <div class="card-body" id="body-mongo">
+            <div class="stat-row">
+              <span class="stat-label">Status</span
+              ><span class="stat-value dim"><div class="spinner"></div></span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Neo4j card -->
+        <div class="db-card checking" id="card-neo4j">
+          <div class="card-header">
+            <div class="card-icon icon-neo4j">🕸️</div>
+            <div class="card-title">
+              <h3>Neo4j</h3>
+              <p>Graph DB Port 7687</p>
+            </div>
+            <span class="status-badge badge-checking" id="badge-neo4j"
+              >CHECKING</span
+            >
+          </div>
+          <div class="card-body" id="body-neo4j">
+            <div class="stat-row">
+              <span class="stat-label">Status</span
+              ><span class="stat-value dim"><div class="spinner"></div></span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── Live Stats ── -->
+      <div class="section-title">Live System Statistics</div>
+      <div class="summary-grid" id="summary-grid">
+        <div class="summary-card">
+          <div class="big-num num-blue" id="stat-assets">—</div>
+          <div class="big-label">Assets</div>
+        </div>
+        <div class="summary-card">
+          <div class="big-num num-yellow" id="stat-requests">—</div>
+          <div class="big-label">Open Requests</div>
+        </div>
+        <div class="summary-card">
+          <div class="big-num num-red" id="stat-sla">—</div>
+          <div class="big-label">SLA Breaches</div>
+        </div>
+        <div class="summary-card">
+          <div class="big-num num-green" id="stat-staff">—</div>
+          <div class="big-label">Staff</div>
+        </div>
+        <div class="summary-card">
+          <div class="big-num num-purple" id="stat-nodes">—</div>
+          <div class="big-label">Graph Nodes</div>
+        </div>
+        <div class="summary-card">
+          <div class="big-num num-blue" id="stat-logs">—</div>
+          <div class="big-label">Mongo Docs</div>
+        </div>
+      </div>
+
+      <!-- ── Open Requests Table ── -->
+      <div class="section-title">Open Maintenance Requests</div>
+      <div class="data-section">
+        <div class="data-section-header">
+          📋 Current Open Requests pulled from MySQL view
+          <code>v_open_requests</code>
+        </div>
+        <div id="requests-table-wrap">
+          <div class="empty-state">Connect to the API to load data.</div>
+        </div>
+      </div>
+
+      <!-- ── Asset Conditions Table ── -->
+      <div class="section-title">Asset Condition by District</div>
+      <div class="data-section">
+        <div class="data-section-header">
+          🏗️ District Asset Health from MySQL view
+          <code>v_asset_condition_by_district</code>
+        </div>
+        <div id="assets-table-wrap">
+          <div class="empty-state">Connect to the API to load data.</div>
+        </div>
+      </div>
+
+      <!-- ── Neo4j Node Distribution ── -->
+      <div class="section-title">Neo4j Graph — Node Distribution</div>
+      <div class="data-section">
+        <div class="data-section-header">
+          🕸️ Node Labels and Relationship Types
+        </div>
+        <div id="neo4j-table-wrap">
+          <div class="empty-state">Connect to the API to load data.</div>
+        </div>
+      </div>
+
+      <!-- ── MongoDB Collections ── -->
+      <div class="section-title">MongoDB Collection Document Counts</div>
+      <div class="data-section">
+        <div class="data-section-header">
+          🍃 Collections in <code>group19_mongo</code>
+        </div>
+        <div id="mongo-table-wrap">
+          <div class="empty-state">Connect to the API to load data.</div>
+        </div>
+      </div>
+
+      <!-- ── Setup Guide (shown when API is down) ── -->
+      <div id="setup-section" style="display: none">
+        <div class="section-title">Quick Setup How to Connect</div>
+        <div class="setup-card">
+          <div class="setup-step">
+            <div class="step-num">1</div>
+            <div class="step-body">
+              <h4>🐬 MySQL Start XAMPP</h4>
+              <p>
+                Open <strong>XAMPP Control Panel</strong> → click
+                <strong>START</strong> next to MySQL and Apache.<br />
+                Then open
+                <a
+                  href="http://localhost/phpmyadmin"
+                  target="_blank"
+                  style="color: var(--accent)"
+                  >http://localhost/phpmyadmin</a
+                >, go to <strong>Import</strong>, and run
+                <code>phase1_mysql/group19_schema.sql</code> then
+                <code>phase2_mysql_logic/group19_logic.sql</code>.
+              </p>
+            </div>
+          </div>
+          <div class="setup-step">
+            <div class="step-num">2</div>
+            <div class="step-body">
+              <h4>🍃 MongoDB Start the service</h4>
+              <p>
+                <strong>Windows:</strong> Run <code>net start MongoDB</code> in
+                Command Prompt (Admin), or start from Services.<br />
+                Then in a terminal:
+                <code>mongosh --file phase3_mongodb/group19_mongodb.js</code>
+              </p>
+            </div>
+          </div>
+          <div class="setup-step">
+            <div class="step-num">3</div>
+            <div class="step-body">
+              <h4>🕸️ Neo4j Open Neo4j Desktop</h4>
+              <p>
+                Open <strong>Neo4j Desktop</strong> → click
+                <strong>START</strong> on your database.<br />
+                Open Neo4j Browser at
+                <a
+                  href="http://localhost:7474"
+                  target="_blank"
+                  style="color: var(--accent)"
+                  >http://localhost:7474</a
+                >
+                and paste Phase 4 Cypher sections in order.
+              </p>
+            </div>
+          </div>
+          <div class="setup-step">
+            <div class="step-num">4</div>
+            <div class="step-body">
+              <h4>⚡ Start the REST API</h4>
+              <p>
+                Open a terminal in <code>phase5_api/</code>:<br />
+                <code>npm install</code> then
+                <code>copy .env.example .env</code> (edit the Neo4j password)
+                then <code>node server.js</code><br />
+                The API must be running for this dashboard to show live data.
+              </p>
+            </div>
+          </div>
+          <div class="setup-step">
+            <div class="step-num">5</div>
+            <div class="step-body">
+              <h4>🔄 Refresh this page</h4>
+              <p>
+                Once everything is running, click the
+                <strong>↻ Refresh</strong> button at the top right. All
+                connection indicators should turn green.
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+
+    <footer>
+      Group 19 City of Johannesburg Infrastructure Maintenance Tracking System
+      &nbsp;|&nbsp; Database Management Systems &nbsp;|&nbsp; Graduate Attribute
+      9 Independent Learning By Zeus Chokoe
+    </footer>
+
+    <!-- ═══════════════════════════════════════════════════════════
+     JAVASCRIPT
+═══════════════════════════════════════════════════════════ -->
+    <script>
+      const API_BASE = "http://localhost:3000/api/v1";
+
+      // ── Helpers ────────────────────────────────────────────────
+      function el(id) {
+        return document.getElementById(id);
+      }
+
+      function pill(text, color) {
+        const map = {
+          CRITICAL: "red",
+          HIGH: "yellow",
+          MEDIUM: "blue",
+          LOW: "blue",
+          CONNECTED: "green",
+          DISCONNECTED: "red",
+          OK: "green",
+          DEGRADED: "yellow",
+          FAILED: "red",
+          OPERATIONAL: "green",
+        };
+        const c = color || map[text] || "purple";
+        return `<span class="pill pill-${c}">${text}</span>`;
+      }
+
+      function setCard(service, status, bodyHTML) {
+        const card = el("card-" + service);
+        const badge = el("badge-" + service);
+        const body = el("body-" + service);
+        const ok = status === "CONNECTED" || status === "OK";
+        const chk = status === "CHECKING";
+
+        card.className =
+          "db-card " + (chk ? "checking" : ok ? "connected" : "disconnected");
+        badge.className =
+          "status-badge " +
+          (chk
+            ? "badge-checking"
+            : ok
+              ? "badge-connected"
+              : "badge-disconnected");
+        badge.textContent = status;
+        body.innerHTML = bodyHTML;
+      }
+
+      function statRow(label, value, cls) {
+        return `<div class="stat-row"><span class="stat-label">${label}</span><span class="stat-value ${cls || ""}">${value}</span></div>`;
+      }
+
+      function errBox(msg, hint) {
+        return `<div class="error-box">
+    <div class="err-title">⚠ Connection Error</div>
+    <div>${msg}</div>
+    ${hint ? `<div class="err-hint">💡 ${hint}</div>` : ""}
+  </div>`;
+      }
+
+      // ── Main check ─────────────────────────────────────────────
+      async function runCheck() {
+        const btn = el("refresh-btn");
+        btn.disabled = true;
+        btn.textContent = "Checking…";
+
+        // Reset all to checking
+        ["api", "mysql", "mongo", "neo4j"].forEach((s) => {
+          setCard(
+            s,
+            "CHECKING",
+            `<div class="stat-row"><span class="stat-label">Status</span><span class="stat-value dim"><div class="spinner"></div></span></div>`,
+          );
+        });
+        el("overall-banner").className = "loading";
+        el("banner-dot").className = "banner-dot dot-pulse";
+        el("banner-text").textContent = "Checking connections…";
+        el("setup-section").style.display = "none";
+
+        let data = null;
+
+        // ── Try to reach the API ──
+        try {
+          const res = await fetch(API_BASE + "/status", {
+            signal: AbortSignal.timeout(8000),
+          });
+          if (!res.ok) throw new Error("HTTP " + res.status);
+          data = await res.json();
+        } catch (fetchErr) {
+          // API is not running
+          setCard(
+            "api",
+            "DISCONNECTED",
+            statRow("Status", "API server not reachable", "err") +
+              errBox(
+                fetchErr.message,
+                "Open a terminal in phase5_api/ → run: node server.js",
+              ) +
+              statRow("Expected URL", API_BASE, "dim"),
+          );
+          ["mysql", "mongo", "neo4j"].forEach((s) => {
+            setCard(
+              s,
+              "DISCONNECTED",
+              statRow("Status", "API must be running first", "err") +
+                statRow("Fix", "Start the API: node server.js", "dim"),
+            );
+          });
+          setBanner(
+            "none",
+            "API server is not running. Start the API to see database status.",
+          );
+          el("setup-section").style.display = "";
+          btn.disabled = false;
+          btn.textContent = "↻ Refresh";
+          el("last-checked").textContent =
+            "Last checked: " + new Date().toLocaleTimeString("en-ZA");
+          return;
+        }
+
+        // ── API is running ──
+        setCard(
+          "api",
+          "OK",
+          statRow("Status", "Running", "ok") +
+            statRow("Version", data.api?.version || "v1", "") +
+            statRow("Uptime", formatUptime(data.api?.uptime_s), "") +
+            statRow("Node.js", data.api?.node || "—", "") +
+            statRow(
+              "Timestamp",
+              new Date(data.timestamp).toLocaleTimeString("en-ZA"),
+              "dim",
+            ),
+        );
+
+        // ── MySQL ──
+        const m = data.mysql;
+        if (m.status === "CONNECTED") {
+          const t = m.tables || {};
+          const o = m.objects || {};
+          setCard(
+            "mysql",
+            "CONNECTED",
+            statRow("Status", "Connected", "ok") +
+              statRow("Database", m.database, "") +
+              statRow("Version", m.version || "—", "") +
+              statRow("Host", m.host + ":" + m.port, "dim") +
+              statRow(
+                "Tables",
+                `Districts:${t.districts || 0} · Assets:${t.assets || 0} · Staff:${t.staff || 0}`,
+                "",
+              ) +
+              statRow(
+                "Records",
+                `Requests:${t.requests || 0} · Work Orders:${t.work_orders || 0} · Parts:${t.parts || 0}`,
+                "",
+              ) +
+              statRow(
+                "Objects",
+                `Functions:${o.functions || 0} · Procedures:${o.procedures || 0} · Triggers:${o.triggers || 0} · Events:${o.events || 0}`,
+                "",
+              ),
+          );
+          el("stat-assets").textContent = t.assets || 0;
+          el("stat-requests").textContent = t.requests || 0;
+          el("stat-staff").textContent = t.staff || 0;
+        } else {
+          setCard(
+            "mysql",
+            "DISCONNECTED",
+            statRow("Status", "Not connected", "err") +
+              errBox(m.error || "Connection refused", m.hint),
+          );
+        }
+
+        // ── MongoDB ──
+        const mg = data.mongodb;
+        if (mg.status === "CONNECTED") {
+          const d = mg.documents || {};
+          const total = Object.values(d).reduce((s, v) => s + v, 0);
+          setCard(
+            "mongo",
+            "CONNECTED",
+            statRow("Status", "Connected", "ok") +
+              statRow("Database", mg.database, "") +
+              statRow("Host", mg.host + ":" + mg.port, "dim") +
+              statRow("Collections", mg.collections || 0, "") +
+              statRow("Total Documents", total, "") +
+              statRow(
+                "Sensor Anomalies",
+                mg.anomaly_readings || 0,
+                (mg.anomaly_readings || 0) > 0 ? "warn" : "ok",
+              ),
+          );
+          el("stat-logs").textContent = total;
+          renderMongoTable(mg);
+        } else {
+          setCard(
+            "mongo",
+            "DISCONNECTED",
+            statRow("Status", "Not connected", "err") +
+              errBox(mg.error || "Connection refused", mg.hint),
+          );
+        }
+
+        // ── Neo4j ──
+        const n = data.neo4j;
+        if (n.status === "CONNECTED") {
+          setCard(
+            "neo4j",
+            "CONNECTED",
+            statRow("Status", "Connected", "ok") +
+              statRow("Database", n.database, "") +
+              statRow("Host", n.host + ":" + n.port, "dim") +
+              statRow("Total Nodes", n.total_nodes || 0, "") +
+              statRow("Total Relationships", n.total_relationships || 0, "") +
+              statRow("Node Labels", (n.node_labels || []).length, "") +
+              statRow(
+                "Relationship Types",
+                (n.relationship_types || []).length,
+                "",
+              ),
+          );
+          el("stat-nodes").textContent = n.total_nodes || 0;
+          renderNeo4jTable(n);
+        } else {
+          setCard(
+            "neo4j",
+            "DISCONNECTED",
+            statRow("Status", "Not connected", "err") +
+              errBox(n.error || "ServiceUnavailable", n.hint),
+          );
+        }
+
+        // ── Overall banner ──
+        const overall = data.overall;
+        if (overall === "ALL_CONNECTED") {
+          setBanner(
+            "all",
+            "All systems connected — MySQL, MongoDB, and Neo4j are running.",
+          );
+        } else if (overall === "PARTIAL") {
+          const down = [
+            m.status !== "CONNECTED" ? "MySQL" : null,
+            mg.status !== "CONNECTED" ? "MongoDB" : null,
+            n.status !== "CONNECTED" ? "Neo4j" : null,
+          ]
+            .filter(Boolean)
+            .join(", ");
+          setBanner(
+            "partial",
+            "Partial connection — " +
+              down +
+              " not connected. See the setup guide below.",
+          );
+          el("setup-section").style.display = "";
+        } else {
+          setBanner(
+            "none",
+            "All databases disconnected. Follow the setup guide below.",
+          );
+          el("setup-section").style.display = "";
+        }
+
+        // ── Load live tables from API ──
+        await loadRequestsTable();
+        await loadAssetConditionsTable();
+
+        btn.disabled = false;
+        btn.textContent = "↻ Refresh";
+        el("last-checked").textContent =
+          "Last checked: " + new Date().toLocaleTimeString("en-ZA");
+      }
+
+      // ── Banner helper ──
+      function setBanner(type, text) {
+        const b = el("overall-banner");
+        const d = el("banner-dot");
+        b.className = type;
+        d.className =
+          "banner-dot " +
+          (type === "all"
+            ? "dot-green"
+            : type === "partial"
+              ? "dot-yellow"
+              : "dot-red");
+        el("banner-text").textContent = text;
+      }
+
+      // ── Load open requests from API ──
+      async function loadRequestsTable() {
+        const wrap = el("requests-table-wrap");
+        try {
+          const res = await fetch(API_BASE + "/requests?limit=10", {
+            signal: AbortSignal.timeout(5000),
+          });
+          const json = await res.json();
+          if (!json.success || !json.data || json.data.length === 0) {
+            wrap.innerHTML = `<div class="empty-state">No open requests found — seed data may not be loaded.</div>`;
+            return;
+          }
+          let rows = "";
+          json.data.forEach((r) => {
+            rows += `<tr>
+        <td>${r.request_reference || "—"}</td>
+        <td>${r.category ? r.category.replace(/_/g, " ") : "—"}</td>
+        <td>${pill(r.priority)}</td>
+        <td>${pill(r.status || "SUBMITTED")}</td>
+        <td>${r.district_name || "—"}</td>
+        <td>${r.days_open ?? "—"}</td>
+        <td><strong>${r.urgency_score ?? "—"}</strong></td>
+      </tr>`;
+          });
+          wrap.innerHTML = `<table class="data-table">
+      <thead><tr><th>Reference</th><th>Category</th><th>Priority</th><th>Status</th><th>District</th><th>Days Open</th><th>Urgency</th></tr></thead>
+      <tbody>${rows}</tbody></table>`;
+          el("stat-requests").textContent = json.count || json.data.length;
+        } catch (e) {
+          wrap.innerHTML = `<div class="empty-state">Could not load requests — ${e.message}</div>`;
+        }
+      }
+
+      // ── Load asset conditions from API ──
+      async function loadAssetConditionsTable() {
+        const wrap = el("assets-table-wrap");
+        try {
+          const res = await fetch(API_BASE + "/reports/asset-conditions", {
+            signal: AbortSignal.timeout(5000),
+          });
+          const json = await res.json();
+          if (!json.success || !json.data || json.data.length === 0) {
+            wrap.innerHTML = `<div class="empty-state">No asset data found.</div>`;
+            return;
+          }
+          let rows = "";
+          json.data.forEach((r) => {
+            const rating = r.avg_condition_rating || 0;
+            const cls = rating >= 7 ? "green" : rating >= 5 ? "yellow" : "red";
+            rows += `<tr>
+        <td>${r.district_name || "—"}</td>
+        <td>${r.total_assets || 0}</td>
+        <td><span class="pill pill-${cls}">${rating}</span></td>
+        <td><span class="pill pill-green">${r.operational || 0}</span></td>
+        <td>${r.degraded || 0 > 0 ? `<span class="pill pill-yellow">${r.degraded}</span>` : r.degraded || 0}</td>
+        <td>${r.failed || 0 > 0 ? `<span class="pill pill-red">${r.failed}</span>` : r.failed || 0}</td>
+      </tr>`;
+          });
+          wrap.innerHTML = `<table class="data-table">
+      <thead><tr><th>District</th><th>Total Assets</th><th>Avg Condition</th><th>Operational</th><th>Degraded</th><th>Failed</th></tr></thead>
+      <tbody>${rows}</tbody></table>`;
+        } catch (e) {
+          wrap.innerHTML = `<div class="empty-state">Could not load asset data — ${e.message}</div>`;
+        }
+      }
+
+      // ── Render Neo4j table ──
+      function renderNeo4jTable(n) {
+        const wrap = el("neo4j-table-wrap");
+        const labels = n.node_labels || [];
+        const rels = n.relationship_types || [];
+        if (labels.length === 0) {
+          wrap.innerHTML = `<div class="empty-state">No nodes found — run Phase 4 Cypher in Neo4j Browser.</div>`;
+          return;
+        }
+        let labelRows = labels
+          .map(
+            (r) =>
+              `<tr><td>${r.label || "—"}</td><td>${r.count || 0}</td><td>${pill("NODE", "blue")}</td></tr>`,
+          )
+          .join("");
+        let relRows = rels
+          .map(
+            (r) =>
+              `<tr><td>${r.type || "—"}</td><td>${r.cnt || 0}</td><td>${pill("RELATIONSHIP", "purple")}</td></tr>`,
+          )
+          .join("");
+        wrap.innerHTML = `<table class="data-table">
+    <thead><tr><th>Name</th><th>Count</th><th>Kind</th></tr></thead>
+    <tbody>${labelRows}${relRows}</tbody></table>`;
+      }
+
+      // ── Render MongoDB table ──
+      function renderMongoTable(mg) {
+        const wrap = el("mongo-table-wrap");
+        const docs = mg.documents || {};
+        if (!Object.keys(docs).length) {
+          wrap.innerHTML = `<div class="empty-state">No collections found — run phase3_mongodb/group19_mongodb.js</div>`;
+          return;
+        }
+        const rows = Object.entries(docs)
+          .map(
+            ([col, cnt]) =>
+              `<tr><td>${col}</td><td>${cnt}</td><td>${cnt > 0 ? pill("LOADED", "green") : pill("EMPTY", "yellow")}</td></tr>`,
+          )
+          .join("");
+        wrap.innerHTML = `<table class="data-table">
+    <thead><tr><th>Collection</th><th>Documents</th><th>Status</th></tr></thead>
+    <tbody>${rows}</tbody></table>`;
+      }
+
+      // ── Format uptime ──
+      function formatUptime(s) {
+        if (!s) return "—";
+        if (s < 60) return s + "s";
+        if (s < 3600) return Math.floor(s / 60) + "m " + (s % 60) + "s";
+        return Math.floor(s / 3600) + "h " + Math.floor((s % 3600) / 60) + "m";
+      }
+
+      // ── Auto-run on load + auto-refresh every 30s ──
+      window.addEventListener("load", () => {
+        el("api-url-display").textContent = API_BASE;
+        runCheck();
+      });
+      setInterval(runCheck, 30000);
+    </script>
+  </body>
+</html>

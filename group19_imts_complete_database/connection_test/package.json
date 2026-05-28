@@ -1,0 +1,13 @@
+{
+  "name": "group19-connection-test",
+  "version": "1.0.0",
+  "description": "Group 19 IMTS — connection tester",
+  "main": "test_connections.js",
+  "scripts": { "test": "node test_connections.js" },
+  "dependencies": {
+    "mysql2": "^3.6.5",
+    "mongodb": "^6.3.0",
+    "neo4j-driver": "^5.15.0",
+    "dotenv": "^16.3.1"
+  }
+}
